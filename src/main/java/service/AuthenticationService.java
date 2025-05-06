@@ -1,0 +1,158 @@
+package service;
+
+import dto.AuthenticationRequest;
+import dto.AuthenticationResponse;
+import dto.RefreshTokenRequest;
+import exception.AuthenticationException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import model.Account;
+import model.Token;
+import model.User;
+import model.enums.AccountStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import repository.AccountRepository;
+import repository.TokenRepository;
+import repository.UserRepository;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AuthenticationService {
+
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
+    private final AccountRepository accountRepository;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+
+    /**
+     * Authenticate a user and return JWT tokens
+     * @param request authentication request with username and password
+     * @return AuthenticationResponse containing access and refresh tokens
+     * @throws AuthenticationException if authentication fails
+     */
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        try {
+            // Authenticate with Spring Security
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+
+            // Get user details after successful authentication
+            Account account = accountRepository.findByUsername(request.getUsername())
+                    .orElseThrow(() -> new AuthenticationException("Account not found with username: " + request.getUsername()));
+
+            if (account.getStatus() == AccountStatus.BANNED) {
+                throw new AuthenticationException("Account is banned");
+            }
+
+            User user = userRepository.findByAccount(account)
+                    .orElseThrow(() -> new AuthenticationException("Can't find user information, try again later"));
+
+            // Generate tokens
+            String accessToken = jwtService.generateAccessToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
+
+            // Save the token
+            saveUserToken(user, accessToken);
+
+            return AuthenticationResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .username(user.getUsername())
+                    .fullName(user.getFullName())
+                    .role(user.getRole())
+                    .build();
+
+        } catch (BadCredentialsException e) {
+            throw new AuthenticationException("Invalid username or password");
+        } catch (Exception e) {
+            throw new AuthenticationException("Authentication failed", e);
+        }
+    }
+
+    /**
+     * Save user token
+     */
+    private void saveUserToken(User user, String jwtToken) {
+        Token token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .expired(false)
+                .revoked(false)
+                .build();
+
+        tokenRepository.save(token);
+    }
+
+    /**
+     * Revoke all tokens for user
+     */
+    private void revokeAllUserTokens(User user) {
+        var validUserTokens = tokenRepository.findAllValidTokensByUser(user.getId());
+        if (validUserTokens.isEmpty()) {
+            return;
+        }
+
+        validUserTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+
+        tokenRepository.saveAll(validUserTokens);
+    }
+
+    /**
+     * Refresh a JWT token
+     * @param request refresh token request containing the refresh token
+     * @return new access and refresh tokens
+     */
+    @Transactional
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) {
+        final String refreshToken = request.getRefreshToken();
+        final String username = jwtService.extractUsername(refreshToken);
+        
+        if (username == null) {
+            throw new AuthenticationException("Invalid refresh token");
+        }
+
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthenticationException("Account not found with username: " + username));
+
+        if (account.getStatus() == AccountStatus.BANNED) {
+            throw new AuthenticationException("Account is banned");
+        }
+
+        User user = userRepository.findByAccount(account)
+                .orElseThrow(() -> new AuthenticationException("Can't find user information, try again later"));
+
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new AuthenticationException("Invalid or expired refresh token");
+        }
+
+        // Generate new tokens
+        String accessToken = jwtService.generateAccessToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        // Update user's tokens - revoke old ones
+        revokeAllUserTokens(user);
+        // Save new token
+        saveUserToken(user, accessToken);
+
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(newRefreshToken)
+                .username(user.getUsername())
+                .fullName(user.getFullName())
+                .role(user.getRole())
+                .build();
+    }
+}

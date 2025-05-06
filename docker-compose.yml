@@ -1,0 +1,11 @@
+version: '3.7'
+services:
+  app:
+    container_name: uni-sys
+    build: .
+    volumes:
+      - /home/web/log:/log
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+    <conversionRule conversionWord="threadName" converterClass="configuration.log.LogThreadFormat" />
+    <conversionRule conversionWord="customHighlight" converterClass="configuration.log.LogLevelFormat" />
+
+    <appender name="CMD" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+<!--            <pattern>%magenta(%d{yyyy-MM-dd HH:mm:ss}) %cyan([%17.17threadName]) %customHighlight(%-5level) %35.35logger{0} %-35method %4L - %msg%n</pattern>-->
+            <pattern>%customHighlight(%-5level) %35.35logger{0} %-35method %4L - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="WARN">
+        <appender-ref ref="CMD" />
+    </root>
+
+    <logger name="org.springframework.web" level="DEBUG"/>
+</configuration>
