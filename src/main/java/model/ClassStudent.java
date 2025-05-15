@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "class_student")
-public class ClassStudent {
+public class ClassStudent extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +35,16 @@ public class ClassStudent {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ClassStudentStatus status;
-    
+
+    @Column(name = "midterm_grade")
+    private Double midtermGrade;
+
+    @Column(name = "final_exam_grade")
+    private Double finalExamGrade;
+
+    @Column(name = "final_grade")
+    private Double finalGrade;
+
     @OneToMany(mappedBy = "classStudent")
     private List<TuitionRecord> tuitionRecords;
 }

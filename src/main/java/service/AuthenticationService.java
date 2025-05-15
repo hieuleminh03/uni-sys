@@ -1,8 +1,8 @@
 package service;
 
-import dto.AuthenticationRequest;
-import dto.AuthenticationResponse;
-import dto.RefreshTokenRequest;
+import dto.request.shared.AuthenticationRequest;
+import dto.response.shared.AuthenticationResponse;
+import dto.request.shared.RefreshTokenRequest;
 import exception.AuthenticationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

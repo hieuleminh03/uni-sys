@@ -1,8 +1,5 @@
 package model.enums;
 
-/**
- * Represents the educational diploma level of a teacher
- */
 public enum DiplomaLevel {
     HIGH_SCHOOL,
     VOCATIONAL,

@@ -15,7 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @Table(name = "announcements")
-public class Announcement {
+public class Announcement extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

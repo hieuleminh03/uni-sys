@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "attendances")
-public class Attendance {
+public class Attendance extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

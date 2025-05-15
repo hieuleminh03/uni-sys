@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "classes")
-public class Class {
+public class Class extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +51,9 @@ public class Class {
     @Temporal(TemporalType.DATE)
     @Column(name = "tuition_due_date")
     private Date tuitionDueDate;
+
+    @Column(name = "final_term_weight")
+    private Long finalTermWeight;
     
     @Column(name = "absence_warning_threshold")
     private Integer absenceWarningThreshold;

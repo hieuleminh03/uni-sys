@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "tokens")
-public class Token {
+public class Token extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

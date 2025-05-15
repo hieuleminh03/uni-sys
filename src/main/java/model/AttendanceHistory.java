@@ -13,7 +13,7 @@ import model.enums.AttendanceStatus;
 @AllArgsConstructor
 @Entity
 @Table(name = "attendance_hist")
-public class AttendanceHistory {
+public class AttendanceHistory extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

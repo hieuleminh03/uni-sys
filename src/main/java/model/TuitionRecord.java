@@ -14,7 +14,7 @@ import model.enums.TuitionStatus;
 @AllArgsConstructor
 @Entity
 @Table(name = "tuition_records")
-public class TuitionRecord {
+public class TuitionRecord extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

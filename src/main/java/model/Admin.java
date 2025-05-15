@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "admins")
-public class Admin {
+public class Admin extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

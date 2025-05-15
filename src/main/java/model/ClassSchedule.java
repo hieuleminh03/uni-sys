@@ -13,7 +13,7 @@ import model.enums.DayOfWeek;
 @AllArgsConstructor
 @Entity
 @Table(name = "class_schedule")
-public class ClassSchedule {
+public class ClassSchedule extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

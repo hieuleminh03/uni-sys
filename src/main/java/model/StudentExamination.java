@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Entity
 @Table(name = "student_examination")
-public class StudentExamination {
+public class StudentExamination extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

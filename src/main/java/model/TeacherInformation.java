@@ -13,7 +13,7 @@ import model.enums.DiplomaLevel;
 @AllArgsConstructor
 @Entity
 @Table(name = "teacher_information")
-public class TeacherInformation {
+public class TeacherInformation extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

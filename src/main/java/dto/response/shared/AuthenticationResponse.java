@@ -1,4 +1,4 @@
-package dto;
+package dto.response.shared;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

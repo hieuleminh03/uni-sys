@@ -13,7 +13,7 @@ import model.enums.HomeroomStatus;
 @AllArgsConstructor
 @Entity
 @Table(name = "homeroom_student")
-public class HomeroomStudent {
+public class HomeroomStudent extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @AllArgsConstructor
 @Entity
 @Table(name = "accounts")
-public class Account {
+public class Account extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
