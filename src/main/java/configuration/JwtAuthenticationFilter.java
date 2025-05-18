@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // path không cần authentication
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
-            "/api/v1/auth/**",
+            "/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
@@ -48,6 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
 
+        // test xem có khớp không, để debug
+
+        log.debug("Request path: {}", path);
+        boolean isPublicPath     = PUBLIC_PATHS.stream()
+                .anyMatch(pattern -> pathMatcher.match(pattern, path));
+        log.debug("Is public path: {}", isPublicPath);
         // bỏ qua filter cho public path
         return PUBLIC_PATHS.stream()
                 .anyMatch(pattern -> pathMatcher.match(pattern, path));

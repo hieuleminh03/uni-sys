@@ -4,8 +4,45 @@ services:
     container_name: uni-sys
     build: .
     volumes:
-      - /home/web/log:/log
+      - ./logs:/app/logs
     ports:
       - ${PORT}:${PORT}
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - uni-sys-network
+
+  db:
+    container_name: uni-sys-mysql
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASS}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_HOST=%  # Allow root user to connect from any host
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init/seeder.sql:/docker-entrypoint-initdb.d/seeder.sql
+    networks:
+      - uni-sys-network
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASS}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  uni-sys-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

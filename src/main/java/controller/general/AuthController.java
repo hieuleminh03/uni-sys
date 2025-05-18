@@ -1,11 +1,15 @@
 package controller.general;
 
+import controller.BaseController;
 import dto.request.shared.AuthenticationRequest;
 import dto.response.BaseResponse;
 import dto.response.shared.AuthenticationResponse;
 import dto.request.shared.RefreshTokenRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,22 +19,32 @@ import service.AuthenticationService;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthController {
+@Validated
+@Tag(name = "Authentication", description = "Authentication API endpoints")
+public class AuthController extends BaseController {
 
     private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
+    @Operation(summary = "User login", description = "Authenticates user credentials and returns access and refresh tokens")
     public ResponseEntity<BaseResponse<AuthenticationResponse>> login(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(BaseResponse.ok(authenticationService.authenticate(request),"login successfully"));
+        AuthenticationResponse authenticationResponse = authenticationService.authenticate(request);
+        return successResponse(authenticationResponse, "Login successful");
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthenticationResponse> refresh(@RequestBody RefreshTokenRequest request) {
-        return ResponseEntity.ok(authenticationService.refreshToken(request));
+    @Operation(summary = "Refresh token", description = "Generates a new access token using a valid refresh token")
+    public ResponseEntity<BaseResponse<AuthenticationResponse>> refresh(@RequestBody RefreshTokenRequest request) {
+        AuthenticationResponse refreshedResponse = authenticationService.refreshToken(request);
+        return successResponse(refreshedResponse, "Token refreshed successfully");
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        return ResponseEntity.ok("Logged out successfully");
+
+    // Development endpoint - should be secured or removed in production
+    @PostMapping("/register")
+    @Operation(summary = "User registration (Development)", description = "Creates a new user account (for development purposes)")
+    public ResponseEntity<BaseResponse<String>> register() {
+        // TODO: Implement proper registration with request validation
+        return createdResponse("Registered successfully", "User registered");
     }
 }

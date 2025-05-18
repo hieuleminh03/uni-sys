@@ -1,13 +1,17 @@
 package controller.business.admin;
 
 import dto.response.BaseResponse;
+import dto.response.shared.AccountInformationResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import service.admin.AdminAccountServiceImpl;
 
 @RestController
 @RequestMapping("/admin/account")
@@ -15,12 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminAccountController {
 
+    private final AdminAccountServiceImpl adminAccountService;
+
     /**
      * For personal account management
      */
     @GetMapping("/")
-    public BaseResponse<String> getAccountInformation() {
-        return BaseResponse.ok(null, "Account information retrieved successfully");
+    public ResponseEntity<BaseResponse<AccountInformationResponse>> getAccountInformation() {
+        return new ResponseEntity<>(adminAccountService.getAccountInformation(), HttpStatus.OK);
     }
 
     @PatchMapping("/")

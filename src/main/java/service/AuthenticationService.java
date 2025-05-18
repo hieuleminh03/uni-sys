@@ -13,6 +13,8 @@ import model.enums.AccountStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repository.AccountRepository;
@@ -154,5 +156,40 @@ public class AuthenticationService {
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .build();
+    }
+    
+    /**
+     * Log out a user by invalidating their tokens
+     * This should be called when a user logs out from the application
+     * It invalidates all tokens for the authenticated user
+     * @return the username of the logged out user, or null if no user was logged out
+     */
+    @Transactional
+    public String logout() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+            
+            // Find the account first, then use it to find the user
+            Account account = accountRepository.findByUsername(username)
+                    .orElse(null);
+                    
+            if (account != null) {
+                User user = userRepository.findByAccount(account)
+                        .orElse(null);
+                
+                if (user != null) {
+                    revokeAllUserTokens(user);
+                    log.info("Logged out user: {}", username);
+                    // Clear the SecurityContext
+                    SecurityContextHolder.clearContext();
+                    return username;
+                }
+            }
+        }
+        
+        log.warn("Logout attempted but no authenticated user found");
+        return null;
     }
 }
