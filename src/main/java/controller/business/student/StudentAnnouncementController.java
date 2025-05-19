@@ -1,11 +1,16 @@
 package controller.business.student;
 
 import dto.response.BaseResponse;
+import dto.response.student.StudentAnnouncementDetailResponse;
+import dto.response.student.StudentAnnouncementListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import service.student.StudentAnnouncementService;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/student/announcement")
@@ -13,20 +18,34 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('STUDENT')")
 public class StudentAnnouncementController {
 
-    /**
-     * Personal
-     */
+    private final StudentAnnouncementService studentAnnouncementService;
 
+    /**
+     * Get announcements for the current week
+     * Returns announcements targeted at students for the current week
+     */
     @GetMapping("/week")
-    public BaseResponse<String> getAnnouncementCurrentWeek() {
-        return BaseResponse.ok(null, "Announcement information in current week retrieved successfully");
+    public BaseResponse<List<StudentAnnouncementListResponse>> getAnnouncementCurrentWeek() {
+        return studentAnnouncementService.getAnnouncementsForCurrentWeek();
     }
 
-     @GetMapping("/")
-     public BaseResponse<String> getAnnouncementInformation() {
-         // get all announcements
-         // should have time
-         return BaseResponse.ok(null, "Announcement information retrieved successfully");
-     }
-
+    /**
+     * Get all announcements with pagination
+     * Returns all announcements targeted at students
+     */
+    @GetMapping("/all")
+    public BaseResponse<List<StudentAnnouncementListResponse>> getAllAnnouncements(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return studentAnnouncementService.getAllAnnouncements(page, size);
+    }
+    
+    /**
+     * Get announcement details by ID
+     * Returns detailed information for a specific announcement
+     */
+    @GetMapping("/{id}")
+    public BaseResponse<StudentAnnouncementDetailResponse> getAnnouncementById(@PathVariable Long id) {
+        return studentAnnouncementService.getAnnouncementById(id);
+    }
 }
