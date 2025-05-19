@@ -20,4 +20,11 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
      */
     @Query("SELECT s FROM Student s JOIN FETCH s.user WHERE s.id = :id")
     Optional<Student> findByIdWithUser(@Param("id") Long id);
+    
+    /**
+     * Find student by username and eagerly fetch the user relationship
+     * to avoid LazyInitializationException
+     */
+    @Query("SELECT s FROM Student s JOIN FETCH s.user u JOIN FETCH u.account a WHERE a.username = :username")
+    Optional<Student> findByUserAccountUsername(@Param("username") String username);
 }

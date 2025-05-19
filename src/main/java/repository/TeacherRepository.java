@@ -20,4 +20,11 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
      */
     @Query("SELECT t FROM Teacher t JOIN FETCH t.user WHERE t.id = :id")
     Optional<Teacher> findByIdWithUser(@Param("id") Long id);
+    
+    /**
+     * Find teacher by username and eagerly fetch the user relationship
+     * to avoid LazyInitializationException
+     */
+    @Query("SELECT t FROM Teacher t JOIN FETCH t.user u JOIN FETCH u.account a WHERE a.username = :username")
+    Optional<Teacher> findByUserAccountUsername(@Param("username") String username);
 }
