@@ -1,73 +1,136 @@
 package controller.business.admin;
 
+import controller.BaseController;
+import dto.request.admin.*;
 import dto.response.BaseResponse;
+import dto.response.admin.HomeroomDetailResponse;
+import dto.response.admin.HomeroomListResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import model.enums.HomeroomStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import service.admin.AdminHomeroomServiceImpl;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/homeroom")
-@RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminHomeroomController {
+@RequiredArgsConstructor
+@Tag(name = "Admin Homeroom Management", description = "Homeroom management API endpoints for administrators")
+public class AdminHomeroomController extends BaseController {
+
+    private final AdminHomeroomServiceImpl adminHomeroomService;
 
     /**
-     * Admin related, since no admin attached with any homeroom
+     * Get all homerooms with pagination
      */
-
     @GetMapping("/all")
-    public BaseResponse<String> getAllHomerooms() {
-        // basic information
-        return BaseResponse.ok(null, "All homerooms retrieved successfully");
-    }
-
-    @GetMapping("/{id}")
-    public BaseResponse<String> getHomeroomById() {
-        // with detail
-        return BaseResponse.ok(null, "Homeroom retrieved successfully");
-    }
-
-    @PostMapping("/create")
-    public BaseResponse<String> createHomeroom() {
-        return BaseResponse.created(null, "Homeroom created successfully");
-    }
-
-    @PatchMapping("/students/infor/update")
-    public BaseResponse<String> updateHomeroomStudent() {
-        return BaseResponse.accepted(null, "Homeroom student information updated successfully");
+    @Operation(summary = "Get all homerooms", description = "Retrieves a list of all homerooms with pagination")
+    public ResponseEntity<BaseResponse<List<HomeroomListResponse>>> getAllHomerooms(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        return ResponseEntity.ok(adminHomeroomService.getAllHomerooms(page, size));
     }
 
     /**
-     * Member list update
+     * Get homeroom by ID
      */
-    @PostMapping("/students/add")
-    public BaseResponse<String> addStudentToHomeroom() {
-        return BaseResponse.created(null, "Student added to homeroom successfully");
+    @GetMapping("/{id}")
+    @Operation(summary = "Get homeroom details", description = "Retrieves detailed information about a specific homeroom including student list")
+    public ResponseEntity<BaseResponse<HomeroomDetailResponse>> getHomeroomById(@PathVariable Long id) {
+        return ResponseEntity.ok(adminHomeroomService.getHomeroomById(id));
     }
 
-    @PostMapping("/students/add/batch")
-    public BaseResponse<String> addStudentsToHomeroom() {
-        return BaseResponse.created(null, "Students added to homeroom successfully");
+    /**
+     * Create a new homeroom
+     */
+    @PostMapping("/create")
+    @Operation(summary = "Create homeroom", description = "Creates a new homeroom with an assigned teacher")
+    public ResponseEntity<BaseResponse<String>> createHomeroom(@Valid @RequestBody CreateHomeroomRequest request) {
+        return ResponseEntity.ok(adminHomeroomService.createHomeroom(request));
     }
 
-    @DeleteMapping("/students/remove")
-    public BaseResponse<String> removeStudentFromHomeroom() {
-        return BaseResponse.accepted(null, "Student removed from homeroom successfully");
+    /**
+     * Update an existing homeroom's name
+     */
+    @PutMapping("/update")
+    @Operation(summary = "Update homeroom", description = "Updates an existing homeroom's name")
+    public ResponseEntity<BaseResponse<String>> updateHomeroom(@Valid @RequestBody UpdateHomeroomRequest request) {
+        return ResponseEntity.ok(adminHomeroomService.updateHomeroom(request));
     }
 
-    @DeleteMapping("/students/remove/batch")
-    public BaseResponse<String> removeStudentsFromHomeroom() {
-        return BaseResponse.accepted(null, "Students removed from homeroom successfully");
+    /**
+     * Update homeroom teacher
+     */
+    @PutMapping("/teacher")
+    @Operation(summary = "Update homeroom teacher", description = "Assigns a different teacher to an existing homeroom")
+    public ResponseEntity<BaseResponse<String>> updateHomeroomTeacher(
+            @Valid @RequestBody UpdateHomeroomTeacherRequest request) {
+        
+        return ResponseEntity.ok(adminHomeroomService.updateHomeroomTeacher(request));
     }
 
-    @PostMapping("/teacher/update")
-    public BaseResponse<String> updateHomeroomTeacher() {
-        // should handle all case: assign, change, remove
-        return BaseResponse.accepted(null, "Homeroom teacher updated successfully");
+    /**
+     * Add a student to homeroom
+     */
+    @PostMapping("/students")
+    @Operation(summary = "Add student to homeroom", description = "Adds a single student to a homeroom with specified status")
+    public ResponseEntity<BaseResponse<String>> addStudentToHomeroom(
+            @Valid @RequestBody AddStudentToHomeroomRequest request) {
+        
+        return ResponseEntity.ok(adminHomeroomService.addStudentToHomeroom(request));
+    }
+
+    /**
+     * Batch add students to homeroom
+     */
+    @PostMapping("/students/batch")
+    @Operation(summary = "Batch add students", description = "Adds multiple students to a homeroom with the same status")
+    public ResponseEntity<BaseResponse<Map<String, Object>>> addStudentsToHomeroom(
+            @Valid @RequestBody BatchAddStudentsRequest request) {
+        
+        return ResponseEntity.ok(adminHomeroomService.addStudentsToHomeroom(request));
+    }
+
+    /**
+     * Remove a student from homeroom
+     */
+    @DeleteMapping("/students")
+    @Operation(summary = "Remove student from homeroom", description = "Removes a single student from a homeroom")
+    public ResponseEntity<BaseResponse<String>> removeStudentFromHomeroom(
+            @Valid @RequestBody RemoveStudentFromHomeroomRequest request) {
+        
+        return ResponseEntity.ok(adminHomeroomService.removeStudentFromHomeroom(request));
+    }
+
+    /**
+     * Batch remove students from homeroom
+     */
+    @DeleteMapping("/students/batch")
+    @Operation(summary = "Batch remove students", description = "Removes multiple students from a homeroom")
+    public ResponseEntity<BaseResponse<Map<String, Object>>> removeStudentsFromHomeroom(
+            @Valid @RequestBody BatchRemoveStudentsRequest request) {
+        
+        return ResponseEntity.ok(adminHomeroomService.removeStudentsFromHomeroom(request));
+    }
+
+    /**
+     * Update homeroom student status
+     */
+    @PutMapping("/students/{homeroomId}/{studentId}/status")
+    @Operation(summary = "Update student status", description = "Updates a student's status in a homeroom (e.g., anticipated, graduated, expelled)")
+    public ResponseEntity<BaseResponse<String>> updateHomeroomStudentStatus(
+            @PathVariable Long homeroomId,
+            @PathVariable Long studentId,
+            @RequestParam HomeroomStatus status) {
+        
+        return ResponseEntity.ok(adminHomeroomService.updateHomeroomStudentStatus(homeroomId, studentId, status));
     }
 }
