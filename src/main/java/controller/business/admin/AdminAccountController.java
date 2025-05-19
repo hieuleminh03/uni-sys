@@ -1,8 +1,12 @@
 package controller.business.admin;
 
 import controller.BaseController;
+import dto.request.admin.BatchCreateAccountRequest;
 import dto.request.admin.ChangePasswordRequest;
+import dto.request.admin.CreateAccountRequest;
+import dto.request.admin.ResetPasswordRequest;
 import dto.response.BaseResponse;
+import dto.response.admin.AccountListResponse;
 import dto.response.shared.AccountInformationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import service.admin.AdminAccountServiceImpl;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/account")
@@ -48,31 +55,26 @@ public class AdminAccountController extends BaseController {
 
     @GetMapping("/all")
     @Operation(summary = "Get all accounts", description = "Retrieves a list of all accounts in the system")
-    public BaseResponse<String> getAllAccounts() {
-        // should return enough for a screen
-        return BaseResponse.ok(null, "List of all accounts retrieved successfully", null);
+    public ResponseEntity<BaseResponse<List<AccountListResponse>>> getAllAccounts() {
+        return new ResponseEntity<>(adminAccountService.getAllAccounts(), HttpStatus.OK);
     }
 
-    // for resetting other account's password
     @PostMapping("/reset-password")
     @Operation(summary = "Reset user password", description = "Resets a user's password and sends a notification")
-    public BaseResponse<String> resetPassword() {
-        // should also send announcement to the user
-        return BaseResponse.accepted(null, "Password reset successfully");
+    public ResponseEntity<BaseResponse<String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return new ResponseEntity<>(adminAccountService.resetPassword(request), HttpStatus.ACCEPTED);
     }
-    // optional: change other account status to be "PENDING" -> for some investigations ?
 
-    // for creating new account
     @PostMapping("/create")
     @Operation(summary = "Create a single account", description = "Creates a new user account")
-    public BaseResponse<String> createSingleAccount() {
-        return BaseResponse.created(null, "Account created successfully");
+    public ResponseEntity<BaseResponse<String>> createSingleAccount(@Valid @RequestBody CreateAccountRequest request) {
+        return new ResponseEntity<>(adminAccountService.createSingleAccount(request), HttpStatus.CREATED);
     }
 
     @PostMapping("/create/batch")
-    @Operation(summary = "Create multiple accounts", description = "Creates multiple user accounts in batch")
-    public BaseResponse<String> createBatchAccount() {
-        return BaseResponse.created(null, "Batch account creation initiated");
+    @Operation(summary = "Create multiple accounts", description = "Creates multiple user accounts in batch with detailed success/failure information")
+    public ResponseEntity<BaseResponse<Map<String, Object>>> createBatchAccount(@Valid @RequestBody BatchCreateAccountRequest request) {
+        return new ResponseEntity<>(adminAccountService.createBatchAccount(request), HttpStatus.OK);
     }
 
 }
