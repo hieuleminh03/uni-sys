@@ -1,28 +1,48 @@
 package controller.business.teacher;
 
+import controller.BaseController;
 import dto.response.BaseResponse;
+import dto.response.admin.TeacherDetailResponse;
+import dto.request.teacher.TeacherUpdateInformationRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import service.teacher.TeacherInformationService;
 
 @RestController
 @RequestMapping("/teacher/information")
 @RequiredArgsConstructor
+@Slf4j
 @PreAuthorize("hasRole('TEACHER')")
-public class TeacherInformationController {
+@Tag(name = "Teacher Information", description = "Teacher information management API endpoints for teachers")
+public class TeacherInformationController extends BaseController {
 
-    @GetMapping("/")
-    public BaseResponse<String> getTeacherInformation() {
-        return BaseResponse.ok(null, "Teacher information retrieved successfully");
+    private final TeacherInformationService teacherInformationService;
+
+    /**
+     * Get teacher's own information
+     */
+    @GetMapping()
+    @Operation(summary = "Get teacher's own information", description = "Retrieves detailed information about the logged-in teacher")
+    public ResponseEntity<BaseResponse<TeacherDetailResponse>> getTeacherInformation() {
+        return ResponseEntity.ok(teacherInformationService.getTeacherInformation());
     }
 
-    @PatchMapping("/")
-    public BaseResponse<String> updateTeacherInformation() {
-        return BaseResponse.accepted(null, "Teacher information updated successfully");
+    /**
+     * Update teacher's own information
+     */
+    @PutMapping()
+    @Operation(summary = "Update teacher's own information", description = "Updates the information for the logged-in teacher")
+    public ResponseEntity<BaseResponse<String>> updateTeacherInformation(@Valid @RequestBody TeacherUpdateInformationRequest request) {
+        return ResponseEntity.ok(teacherInformationService.updateTeacherInformation(request));
     }
-
 }
-
