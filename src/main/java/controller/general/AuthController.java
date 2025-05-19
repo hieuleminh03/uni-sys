@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import service.AuthenticationService;
@@ -39,12 +40,13 @@ public class AuthController extends BaseController {
         return successResponse(refreshedResponse, "Token refreshed successfully");
     }
 
-
-    // Development endpoint - should be secured or removed in production
-    @PostMapping("/register")
-    @Operation(summary = "User registration (Development)", description = "Creates a new user account (for development purposes)")
-    public ResponseEntity<BaseResponse<String>> register() {
-        // TODO: Implement proper registration with request validation
-        return createdResponse("Registered successfully", "User registered");
+    @PostMapping("/logout")
+    @Operation(summary = "User logout", description = "Invalidates the user token")
+    public ResponseEntity<BaseResponse<String>> logout(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        boolean logoutSuccess = authenticationService.logoutByToken(authHeader);
+        return logoutSuccess 
+            ? successResponse("Successfully logged out", "Logout successful")
+            : unauthorizedResponse("No active session found");
     }
 }

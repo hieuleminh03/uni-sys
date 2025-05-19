@@ -1,7 +1,16 @@
 # Build stage
 FROM maven:3.9.6-eclipse-temurin-17-alpine AS builder
 WORKDIR /app
-COPY . .
+
+# Copy pom.xml first to cache dependencies
+COPY pom.xml .
+# Download dependencies - this layer will be cached unless pom.xml changes
+RUN mvn dependency:go-offline
+
+# Copy source code
+COPY src ./src
+
+# Build the application
 RUN mvn clean package -DskipTests
 
 # Runtime stage

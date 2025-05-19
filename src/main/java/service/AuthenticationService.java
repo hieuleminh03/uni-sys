@@ -1,8 +1,8 @@
 package service;
 
 import dto.request.shared.AuthenticationRequest;
-import dto.response.shared.AuthenticationResponse;
 import dto.request.shared.RefreshTokenRequest;
+import dto.response.shared.AuthenticationResponse;
 import exception.AuthenticationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import repository.AccountRepository;
 import repository.TokenRepository;
 import repository.UserRepository;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -110,6 +112,8 @@ public class AuthenticationService {
         });
 
         tokenRepository.saveAll(validUserTokens);
+        // Log the number of tokens revoked for debugging
+        log.info("Revoked {} tokens for user ID: {}", validUserTokens.size(), user.getId());
     }
 
     /**
@@ -159,37 +163,115 @@ public class AuthenticationService {
     }
     
     /**
-     * Log out a user by invalidating their tokens
-     * This should be called when a user logs out from the application
-     * It invalidates all tokens for the authenticated user
-     * @return the username of the logged out user, or null if no user was logged out
+     * Logout a user by directly invalidating the token from the request
+     * This is a more direct approach than trying to find the user from the security context
+     * 
+     * @param authHeader the Authorization header from the request, containing the JWT token
+     * @return true if the logout was successful, false otherwise
+     */
+    @Transactional
+    public boolean logoutByToken(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("Logout failed: Invalid or missing Authorization header");
+            return false;
+        }
+        
+        try {
+            // Extract the token from the Authorization header
+            String token = authHeader.substring(7);
+            log.debug("Processing logout for token: {}", token);
+            
+            // Get token info from repository (optional, for detailed logging)
+            Optional<Token> tokenInfo = tokenRepository.findByToken(token);
+            
+            if (tokenInfo.isPresent()) {
+                Token tokenEntity = tokenInfo.get();
+                
+                // If token is already invalidated, return success
+                if (tokenEntity.isExpired() && tokenEntity.isRevoked()) {
+                    log.info("Token was already invalidated");
+                    return true;
+                }
+                
+                // Get user for logging purposes
+                User user = tokenEntity.getUser();
+                log.info("Found token for user: {}", user.getUsername());
+                
+                // Update the token status directly
+                tokenEntity.setExpired(true);
+                tokenEntity.setRevoked(true);
+                tokenRepository.save(tokenEntity);
+                
+                log.info("Successfully invalidated token for user: {}", user.getUsername());
+            } else {
+                // Use the direct revoke method to ensure we catch tokens that might not be
+                // properly connected to a user (fallback mechanism)
+                int affected = tokenRepository.revokeToken(token);
+                log.info("Token invalidation affected {} records", affected);
+                
+                if (affected == 0) {
+                    log.warn("Token not found in database");
+                    return false;
+                }
+            }
+            
+            // Clear security context
+            SecurityContextHolder.clearContext();
+            return true;
+        } catch (Exception e) {
+            log.error("Error during token invalidation", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Original logout method that uses the security context
+     * Kept for backward compatibility
      */
     @Transactional
     public String logout() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        try {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null) {
+                log.warn("Logout failed: No authentication found in SecurityContext");
+                return null;
+            }
+            
+            if (!(authentication.getPrincipal() instanceof UserDetails userDetails)) {
+                log.warn("Logout failed: Authentication principal is not a UserDetails instance");
+                return null;
+            }
+            
             String username = userDetails.getUsername();
+            log.debug("Processing logout for username: {}", username);
             
             // Find the account first, then use it to find the user
             Account account = accountRepository.findByUsername(username)
                     .orElse(null);
                     
-            if (account != null) {
-                User user = userRepository.findByAccount(account)
-                        .orElse(null);
-                
-                if (user != null) {
-                    revokeAllUserTokens(user);
-                    log.info("Logged out user: {}", username);
-                    // Clear the SecurityContext
-                    SecurityContextHolder.clearContext();
-                    return username;
-                }
+            if (account == null) {
+                log.warn("Logout failed: Account not found for username: {}", username);
+                return null;
             }
+            
+            User user = userRepository.findByAccount(account)
+                    .orElse(null);
+            
+            if (user == null) {
+                log.warn("Logout failed: User not found for account: {}", account.getId());
+                return null;
+            }
+            
+            // Revoke all valid tokens for this user
+            revokeAllUserTokens(user);
+            log.info("Logged out user: {}", username);
+            
+            // Clear the SecurityContext
+            SecurityContextHolder.clearContext();
+            return username;
+        } catch (Exception e) {
+            log.error("Unexpected error during logout", e);
+            return null;
         }
-        
-        log.warn("Logout attempted but no authenticated user found");
-        return null;
     }
 }
