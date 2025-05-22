@@ -7,6 +7,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
+import model.User;
+import model.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -50,17 +52,21 @@ public class JwtService {
      * @param userDetails user details để generate token
      * @return JWT access token
      */
-    public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, accessTokenExpiration);
+    public String generateAccessToken(User userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", userDetails.getRole());
+        return generateToken(claims, userDetails, accessTokenExpiration);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, refreshTokenExpiration);
+    public String generateRefreshToken(User userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", userDetails.getRole());
+        return generateToken(claims, userDetails, refreshTokenExpiration);
     }
 
     public String generateToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails,
+            User userDetails,
             long expiration
     ) {
         final long now = System.currentTimeMillis();

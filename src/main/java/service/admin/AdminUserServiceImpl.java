@@ -401,21 +401,7 @@ public class AdminUserServiceImpl {
                 teacherInfo.setDiplomaLevel(request.getDiplomaLevel());
             }
             if (request.getCareerDesc() != null) {
-                try {
-                    // Check if the careerDesc is already a valid JSON string
-                    try {
-                        objectMapper.readTree(request.getCareerDesc());
-                        // If no exception is thrown, it's already a valid JSON string
-                        teacherInfo.setCareerDesc(request.getCareerDesc());
-                    } catch (Exception e) {
-                        // Not a valid JSON, convert the plain text to a JSON string
-                        // Wrap the career description in quotes to make it a valid JSON string
-                        String jsonString = objectMapper.writeValueAsString(request.getCareerDesc());
-                        teacherInfo.setCareerDesc(jsonString);
-                    }
-                } catch (Exception e) {
-                    throw new BadRequestException("Invalid career description format: " + e.getMessage());
-                }
+                teacherInfo.setCareerDesc(request.getCareerDesc());
             }
             
             teacherInformationRepository.save(teacherInfo);

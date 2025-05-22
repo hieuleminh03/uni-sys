@@ -113,6 +113,7 @@ public class SearchServiceImpl {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
     }
 

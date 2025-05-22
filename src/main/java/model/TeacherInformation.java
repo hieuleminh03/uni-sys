@@ -23,7 +23,7 @@ public class TeacherInformation extends BaseModel {
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
     
-    @Column(name = "career_desc", columnDefinition = "json")
+    @Column(name = "career_desc")
     private String careerDesc;
     
     @Enumerated(EnumType.STRING)

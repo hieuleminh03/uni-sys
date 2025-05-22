@@ -12,5 +12,8 @@ public class AccountInformationResponse {
 
     private String username;
     private AccountStatus status;
+    private String fullName;
+    private String email;
+    private String avatarUrl;
 
 }

@@ -63,9 +63,15 @@ public class AdminAccountServiceImpl {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Account account = accountRepository.findByUsername(auth.getName())
                     .orElseThrow(() -> new RuntimeException("Account not found"));
+            User user = userRepository.findByAccount(account).orElseThrow(
+                    () -> new RuntimeException("User not found")
+            );
             AccountInformationResponse response = AccountInformationResponse.builder()
                     .username(account.getUsername())
                     .status(account.getStatus())
+                    .avatarUrl(user.getAvatarUrl())
+                    .email(user.getEmail())
+                    .fullName(user.getFullName())
                     .build();
             return BaseResponse.ok(response,"Account information retrieved successfully");
         } catch (Exception e) {
@@ -207,6 +213,9 @@ public class AdminAccountServiceImpl {
             // Check if username already exists
             if (accountRepository.findByUsername(request.getUsername()).isPresent()) {
                 throw new BadRequestException("Username already exists: " + request.getUsername());
+            }
+            if(userRepository.existsByEmail(request.getEmail())){
+                throw new BadRequestException("Email already exists: " + request.getEmail());
             }
             
             // Create account
