@@ -43,12 +43,4 @@ public class TeacherAccountController extends BaseController {
         return new ResponseEntity<>(teacherAccountService.changePassword(request), HttpStatus.ACCEPTED);
     }
 
-    /**
-     * For other account management
-     */
-    @GetMapping("/detail/{id}")
-    @Operation(summary = "Get teacher account detail by ID (to see other teacher)", description = "Retrieves the account detail for a specific teacher by ID")
-    public ResponseEntity<BaseResponse<AccountInformationResponse>> getTeacherDetailById(@PathVariable Long id) {
-        return new ResponseEntity<>(teacherAccountService.getTeacherDetailById(id), HttpStatus.OK);
-    }
 }

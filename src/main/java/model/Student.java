@@ -31,11 +31,5 @@ public class Student extends BaseModel {
     private List<ClassStudent> classStudents;
     
     @OneToMany(mappedBy = "student")
-    private List<AttendanceHistory> attendanceHistories;
-    
-    @OneToMany(mappedBy = "student")
-    private List<StudentExamination> studentExaminations;
-    
-    @OneToMany(mappedBy = "student")
     private List<HomeroomStudent> homeroomStudents;
 }

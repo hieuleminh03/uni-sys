@@ -44,10 +44,14 @@ public class TeacherAccountServiceImpl {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Account account = accountRepository.findByUsername(auth.getName())
                     .orElseThrow(() -> new RuntimeException("Account not found"));
-            
+            User user = userRepository.findByAccount(account)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             AccountInformationResponse response = AccountInformationResponse.builder()
                     .username(account.getUsername())
                     .status(account.getStatus())
+                    .email(user.getEmail())
+                    .fullName(user.getFullName())
+                    .avatarUrl(user.getAvatarUrl())
                     .build();
             
             return BaseResponse.ok(response, "Account information retrieved successfully");
@@ -102,45 +106,5 @@ public class TeacherAccountServiceImpl {
                 "Failed to change password", e, null);
         }
     }
-    
-    
-    /**
-     * Get teacher account details by ID
-     * @param id Teacher ID
-     * @return Teacher account details
-     */
-    @Transactional(readOnly = true) 
-    public BaseResponse<AccountInformationResponse> getTeacherDetailById(Long id) {
-        try {
-            // Find the teacher by ID
-            Teacher teacher = teacherRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + id));
-            
-            // Get account details via User entity, staying within the transaction
-            User user = teacher.getUser();
-            if (user == null) {
-                throw new ResourceNotFoundException("User not found for teacher ID: " + id);
-            }
-            
-            Account account = user.getAccount();
-            if (account == null) {
-                throw new ResourceNotFoundException("Account not found for teacher ID: " + id);
-            }
-            
-            // Build the response with just account details, not user details
-            AccountInformationResponse response = AccountInformationResponse.builder()
-                .username(account.getUsername())
-                .status(account.getStatus())
-                .build();
-            
-            return BaseResponse.ok(response, "Teacher account details retrieved successfully");
-        } catch (ResourceNotFoundException e) {
-            log.error("Teacher or account not found", e);
-            return BaseResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(), e, null);
-        } catch (Exception e) {
-            log.error("Failed to retrieve teacher account details", e);
-            return BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
-                "Failed to retrieve teacher account details", e, null);
-        }
-    }
+
 }

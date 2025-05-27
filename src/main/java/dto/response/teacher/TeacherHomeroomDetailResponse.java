@@ -15,6 +15,10 @@ import java.util.List;
 public class TeacherHomeroomDetailResponse {
     private Long id;
     private String name;
+    private String teacherName;
+    private Long teacherId;
+    private String teacherEmail;
+    private String teacherAvatarUrl;
     private int totalStudents;
     private int anticipatedStudents;
     private int expelledStudents;

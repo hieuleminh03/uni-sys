@@ -34,73 +34,26 @@ public class StudentHomeroomServiceImpl {
     private final StudentRepository studentRepository;
 
     /**
-     * Get all homerooms for the current student
+     * Get the current student's homeroom details
      */
     @Transactional(readOnly = true)
-    public BaseResponse<List<StudentHomeroomListResponse>> getAllHomerooms() {
+    public BaseResponse<StudentHomeroomDetailResponse> getHomeroom() {
         try {
             // Get current authenticated student
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
-            
-            Student student = studentRepository.findByUserAccountUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-            
-            // Get all homerooms for this student
-            List<HomeroomStudent> homeroomStudents = homeroomStudentRepository.findByStudentIdWithHomeroom(student.getId());
-            
-            if (homeroomStudents.isEmpty()) {
-                return BaseResponse.ok(
-                    List.of(),
-                    "No homerooms found for this student"
-                );
-            }
-            
-            List<StudentHomeroomListResponse> responseList = homeroomStudents.stream()
-                .map(this::mapToListResponse)
-                .collect(Collectors.toList());
-            
-            return BaseResponse.ok(
-                responseList,
-                "Homerooms retrieved successfully"
-            );
-        } catch (ResourceNotFoundException e) {
-            log.error("Student not found", e);
-            return BaseResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(), e, null);
-        } catch (Exception e) {
-            log.error("Failed to retrieve homerooms for student", e);
-            return BaseResponse.error(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(), 
-                "Failed to retrieve homerooms", 
-                e, 
-                null
-            );
-        }
-    }
 
-    /**
-     * Get homeroom details by ID for the current student
-     */
-    @Transactional(readOnly = true)
-    public BaseResponse<StudentHomeroomDetailResponse> getHomeroomById(Long id) {
-        try {
-            // Get current authenticated student
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            
             Student student = studentRepository.findByUserAccountUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-            
-            // Find the homeroom
-            Homeroom homeroom = homeroomRepository.findByIdWithTeacherAndStudents(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Homeroom not found with id: " + id));
-            
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
             // Check if student is in this homeroom
-            HomeroomStudent homeroomStudent = homeroomStudentRepository.findByHomeroomAndStudent(homeroom, student)
-                .orElseThrow(() -> new ResourceNotFoundException("You are not a member of this homeroom"));
-            
+            HomeroomStudent homeroomStudent = homeroomStudentRepository.findByStudent(student)
+                    .orElseThrow(() -> new ResourceNotFoundException("Homeroom not found for studentId: " + student.getId()));
+
+            Homeroom homeroom = homeroomStudentRepository.findByHomeroomStudent(homeroomStudent);
+
             StudentHomeroomDetailResponse response = mapToDetailResponse(homeroom, homeroomStudent);
-            
+
             return BaseResponse.ok(response, "Homeroom details retrieved successfully");
         } catch (ResourceNotFoundException e) {
             log.error("Error retrieving homeroom details", e);
@@ -108,10 +61,10 @@ public class StudentHomeroomServiceImpl {
         } catch (Exception e) {
             log.error("Failed to retrieve homeroom details", e);
             return BaseResponse.error(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(), 
-                "Failed to retrieve homeroom details", 
-                e, 
-                null
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "Failed to retrieve homeroom details",
+                    e,
+                    null
             );
         }
     }
@@ -121,15 +74,15 @@ public class StudentHomeroomServiceImpl {
      */
     private StudentHomeroomListResponse mapToListResponse(HomeroomStudent homeroomStudent) {
         return StudentHomeroomListResponse.builder()
-            .id(homeroomStudent.getHomeroom().getId())
-            .name(homeroomStudent.getHomeroom().getName())
-            .teacherId(homeroomStudent.getHomeroom().getTeacher().getId())
-            .teacherName(homeroomStudent.getHomeroom().getTeacher().getUser().getFullName())
-            .status(homeroomStudent.getStatus())
-            .statusName(getStatusName(homeroomStudent.getStatus()))
-            .createdAt(homeroomStudent.getCreatedAt())
-            .updatedAt(homeroomStudent.getUpdatedAt())
-            .build();
+                .id(homeroomStudent.getHomeroom().getId())
+                .name(homeroomStudent.getHomeroom().getName())
+                .teacherId(homeroomStudent.getHomeroom().getTeacher().getId())
+                .teacherName(homeroomStudent.getHomeroom().getTeacher().getUser().getFullName())
+                .status(homeroomStudent.getStatus())
+                .statusName(getStatusName(homeroomStudent.getStatus()))
+                .createdAt(homeroomStudent.getCreatedAt())
+                .updatedAt(homeroomStudent.getUpdatedAt())
+                .build();
     }
 
     /**
@@ -138,29 +91,33 @@ public class StudentHomeroomServiceImpl {
     private StudentHomeroomDetailResponse mapToDetailResponse(Homeroom homeroom, HomeroomStudent currentStudentHomeroom) {
         // Count students by status
         Map<HomeroomStatus, Long> statusCounts = homeroom.getStudents().stream()
-            .collect(Collectors.groupingBy(
-                HomeroomStudent::getStatus,
-                Collectors.counting()
-            ));
-        
+                .collect(Collectors.groupingBy(
+                        HomeroomStudent::getStatus,
+                        Collectors.counting()
+                ));
+
         // Map classmates (excluding current student)
         List<StudentHomeroomClassmateResponse> classmateResponses = homeroom.getStudents().stream()
-            .filter(hs -> !hs.getStudent().getId().equals(currentStudentHomeroom.getStudent().getId()))
-            .map(this::mapToClassmateResponse)
-            .collect(Collectors.toList());
-        
+                .map(this::mapToClassmateResponse)
+                .collect(Collectors.toList());
+
         return StudentHomeroomDetailResponse.builder()
-            .id(homeroom.getId())
-            .name(homeroom.getName())
-            .teacherId(homeroom.getTeacher().getId())
-            .teacherName(homeroom.getTeacher().getUser().getFullName())
-            .status(currentStudentHomeroom.getStatus())
-            .statusName(getStatusName(currentStudentHomeroom.getStatus()))
-            .totalStudents(homeroom.getStudents().size())
-            .createdAt(homeroom.getCreatedAt())
-            .updatedAt(homeroom.getUpdatedAt())
-            .classmates(classmateResponses)
-            .build();
+                .id(homeroom.getId())
+                .name(homeroom.getName())
+                .teacherId(homeroom.getTeacher().getId())
+                .teacherEmail(homeroom.getTeacher().getUser().getEmail())
+                .teacherAvatarUrl(homeroom.getTeacher().getUser().getAvatarUrl())
+                .teacherName(homeroom.getTeacher().getUser().getFullName())
+                .status(currentStudentHomeroom.getStatus())
+                .anticipatedStudents(statusCounts.getOrDefault(HomeroomStatus.ANTICIPATED, 0L).intValue())
+                .expelledStudents(statusCounts.getOrDefault(HomeroomStatus.EXPELLED, 0L).intValue())
+                .graduatedStudents(statusCounts.getOrDefault(HomeroomStatus.GRADUATED, 0L).intValue())
+                .statusName(getStatusName(currentStudentHomeroom.getStatus()))
+                .totalStudents(homeroom.getStudents().size())
+                .createdAt(homeroom.getCreatedAt())
+                .updatedAt(homeroom.getUpdatedAt())
+                .classmates(classmateResponses)
+                .build();
     }
 
     /**
@@ -168,13 +125,15 @@ public class StudentHomeroomServiceImpl {
      */
     private StudentHomeroomClassmateResponse mapToClassmateResponse(HomeroomStudent homeroomStudent) {
         return StudentHomeroomClassmateResponse.builder()
-            .id(homeroomStudent.getId())
-            .studentId(homeroomStudent.getStudent().getId())
-            .studentName(homeroomStudent.getStudent().getUser().getFullName())
-            .studentCode(homeroomStudent.getStudent().getUser().getAccount().getUsername())
-            .status(homeroomStudent.getStatus())
-            .statusName(getStatusName(homeroomStudent.getStatus()))
-            .build();
+                .id(homeroomStudent.getId())
+                .studentId(homeroomStudent.getStudent().getId())
+                .studentName(homeroomStudent.getStudent().getUser().getFullName())
+                .studentAvatarUrl(homeroomStudent.getStudent().getUser().getAvatarUrl())
+                .studentEmail(homeroomStudent.getStudent().getUser().getEmail())
+                .studentCode(homeroomStudent.getStudent().getUser().getAccount().getUsername())
+                .status(homeroomStudent.getStatus())
+                .statusName(getStatusName(homeroomStudent.getStatus()))
+                .build();
     }
 
     /**
@@ -184,7 +143,7 @@ public class StudentHomeroomServiceImpl {
         if (status == null) {
             return "";
         }
-        
+
         switch (status) {
             case ANTICIPATED:
                 return "Currently Enrolled";

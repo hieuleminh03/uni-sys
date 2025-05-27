@@ -40,7 +40,7 @@ public interface HomeroomStudentRepository extends JpaRepository<HomeroomStudent
     /**
      * Find all homeroom-student relationships by student
      */
-    List<HomeroomStudent> findByStudent(Student student);
+    Optional<HomeroomStudent> findByStudent(Student student);
     
     /**
      * Find all homeroom-student relationships by homeroom and status
@@ -76,4 +76,9 @@ public interface HomeroomStudentRepository extends JpaRepository<HomeroomStudent
      * Count students in a homeroom with a specific status
      */
     long countByHomeroomAndStatus(Homeroom homeroom, HomeroomStatus status);
+
+    boolean existsHomeroomByStudent(Student student);
+
+    @Query("SELECT h FROM Homeroom h JOIN FETCH HomeroomStudent hs ON h = hs.homeroom ")
+    Homeroom findByHomeroomStudent(HomeroomStudent homeroomStudent);
 }

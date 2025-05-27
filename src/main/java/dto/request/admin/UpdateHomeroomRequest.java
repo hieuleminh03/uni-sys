@@ -18,4 +18,6 @@ public class UpdateHomeroomRequest {
     
     @NotBlank(message = "Homeroom name cannot be empty")
     private String name;
+
+    private Long teacherId;
 }

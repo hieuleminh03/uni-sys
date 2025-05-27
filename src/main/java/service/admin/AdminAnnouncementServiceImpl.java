@@ -132,7 +132,6 @@ public class AdminAnnouncementServiceImpl implements AdminAnnouncementService {
                 .content(request.getContent())
                 .date(request.getDate())
                 .target(request.getTarget())
-                .tags(request.getTags())
                 .build();
             
             announcementRepository.save(announcement);
@@ -167,7 +166,6 @@ public class AdminAnnouncementServiceImpl implements AdminAnnouncementService {
             announcement.setContent(request.getContent());
             announcement.setDate(request.getDate());
             announcement.setTarget(request.getTarget());
-            announcement.setTags(request.getTags());
             
             announcementRepository.save(announcement);
             
@@ -227,7 +225,6 @@ public class AdminAnnouncementServiceImpl implements AdminAnnouncementService {
             .content(announcement.getContent())
             .target(announcement.getTarget())
             .targetName(getTargetName(announcement.getTarget()))
-            .tags(announcement.getTags())
             .date(announcement.getDate())
             .createdAt(announcement.getCreatedAt())
             .updatedAt(announcement.getUpdatedAt())
@@ -252,7 +249,6 @@ public class AdminAnnouncementServiceImpl implements AdminAnnouncementService {
             .contentPreview(contentPreview)
             .target(announcement.getTarget())
             .targetName(getTargetName(announcement.getTarget()))
-            .tags(announcement.getTags())
             .date(announcement.getDate())
             .adminName(announcement.getAdmin().getUser().getFullName())
             .build();
@@ -271,8 +267,6 @@ public class AdminAnnouncementServiceImpl implements AdminAnnouncementService {
                 return "Students";
             case TEACHER:
                 return "Teachers";
-            case ADMIN:
-                return "Administrators";
             default:
                 return target.toString();
         }

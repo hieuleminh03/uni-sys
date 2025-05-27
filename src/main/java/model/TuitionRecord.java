@@ -29,6 +29,6 @@ public class TuitionRecord extends BaseModel {
     private TuitionStatus status;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'CASH'")
     private PaymentMethod method;
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -30,9 +31,11 @@ public class TeacherSubjectDetailResponse {
     public static class ClassInfo {
         private Long id;
         private String name;
-        private boolean teaching;
+        private String teacherName;
+        private String teacherAvatarUrl;
+        private String teacherEmail;
         private int totalStudents;
-        private LocalDateTime startDate;
-        private LocalDateTime endDate;
+        private Date startDate;
+        private Date endDate;
     }
 }

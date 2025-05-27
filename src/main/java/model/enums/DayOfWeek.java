@@ -6,6 +6,6 @@ public enum DayOfWeek {
     WED,
     THUS,
     FRI,
-    SAR,
+    SAT,
     SUN
 }

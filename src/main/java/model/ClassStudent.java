@@ -29,8 +29,6 @@ public class ClassStudent extends BaseModel {
     @JoinColumn(name = "class_id", nullable = false)
     private Class classEntity;
     
-    @Column(name = "teacher_note", columnDefinition = "json")
-    private String teacherNote;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -45,6 +43,12 @@ public class ClassStudent extends BaseModel {
     @Column(name = "final_grade")
     private Double finalGrade;
 
-    @OneToMany(mappedBy = "classStudent")
-    private List<TuitionRecord> tuitionRecords;
+    @OneToOne(mappedBy = "classStudent" ,cascade = CascadeType.ALL)
+    private TuitionRecord tuitionRecord;
+
+    @OneToMany(mappedBy = "classStudent" , cascade = CascadeType.ALL)
+    private List<StudentExamination> studentExaminations;
+
+    @OneToMany(mappedBy = "classStudent" , cascade = CascadeType.ALL)
+    private List<AttendanceHistory> attendanceHistories;
 }

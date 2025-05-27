@@ -38,6 +38,5 @@ public class Announcement extends BaseModel {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AnnouncementTarget target;
-    
-    private String tags;
+
 }

@@ -57,4 +57,6 @@ public interface HomeroomRepository extends JpaRepository<Homeroom, Long> {
      */
     @Query("SELECT h FROM Homeroom h")
     Page<Homeroom> findAll(Pageable pageable);
+
+    boolean existsHomeroomByTeacher(Teacher teacher);
 }

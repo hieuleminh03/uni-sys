@@ -27,16 +27,10 @@ public class Examination extends BaseModel {
     @JoinColumn(name = "class_id", nullable = false)
     private Class classEntity;
     
-    @Column(nullable = false)
-    private String name;
-    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExaminationType type;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ExaminationStatus status;
+
     
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
@@ -45,6 +39,6 @@ public class Examination extends BaseModel {
     @Column(columnDefinition = "json")
     private String notes;
     
-    @OneToMany(mappedBy = "examination")
+    @OneToMany(mappedBy = "examination", cascade = CascadeType.REMOVE)
     private List<StudentExamination> studentExaminations;
 }

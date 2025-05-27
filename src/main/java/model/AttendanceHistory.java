@@ -24,8 +24,8 @@ public class AttendanceHistory extends BaseModel {
     private Attendance attendance;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @JoinColumn(name = "class_student_id", nullable = false)
+    private ClassStudent classStudent;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

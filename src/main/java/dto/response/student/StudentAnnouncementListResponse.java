@@ -20,5 +20,4 @@ public class StudentAnnouncementListResponse {
     private Date date;
     private LocalDateTime createdAt;
     private String adminName;
-    private String tags;
 }

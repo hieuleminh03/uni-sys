@@ -27,20 +27,11 @@ public class StudentHomeroomController extends BaseController {
     private final StudentHomeroomServiceImpl studentHomeroomService;
 
     /**
-     * Get all homerooms for the current student
-     */
-    @GetMapping("/all")
-    @Operation(summary = "Get all homerooms", description = "Retrieves a list of all homerooms for the current student")
-    public ResponseEntity<BaseResponse<List<StudentHomeroomListResponse>>> getAllHomerooms() {
-        return ResponseEntity.ok(studentHomeroomService.getAllHomerooms());
-    }
-
-    /**
      * Get homeroom details by ID
      */
-    @GetMapping("/{id}")
+    @GetMapping("")
     @Operation(summary = "Get homeroom details", description = "Retrieves detailed information about a specific homeroom")
-    public ResponseEntity<BaseResponse<StudentHomeroomDetailResponse>> getHomeroomById(@PathVariable Long id) {
-        return ResponseEntity.ok(studentHomeroomService.getHomeroomById(id));
+    public ResponseEntity<BaseResponse<StudentHomeroomDetailResponse>> getHomeroomById() {
+        return ResponseEntity.ok(studentHomeroomService.getHomeroom());
     }
 }

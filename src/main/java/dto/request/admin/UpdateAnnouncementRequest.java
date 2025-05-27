@@ -27,8 +27,7 @@ public class UpdateAnnouncementRequest {
     
     @NotNull(message = "Target audience is required")
     private AnnouncementTarget target;
-    
-    private String tags;
+
     
     @NotNull(message = "Date is required")
     private Date date;

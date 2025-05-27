@@ -23,7 +23,7 @@ public class Homeroom extends BaseModel {
     @Column(nullable = false)
     private String name;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
     

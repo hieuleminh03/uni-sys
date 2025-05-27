@@ -48,36 +48,36 @@ public class StudentSubjectServiceImpl {
             // Get current authenticated student
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
-            
+
             Student student = studentRepository.findByUserAccountUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-            
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
             // Get all subjects with pagination
             Page<Subject> subjectsPage = subjectRepository.findAllSubjects(pageable);
-            
+
             // Get all classes the student is enrolled in
             List<ClassStudent> enrolledClasses = classStudentRepository.findByStudent(student);
 
             // TODO: use the class repository to get all classes
             Set<Long> enrolledSubjectIds = enrolledClasses.stream()
-                .map(cs -> cs.getClassEntity().getSubject().getId())
-                .collect(Collectors.toSet());
-            
+                    .map(cs -> cs.getClassEntity().getSubject().getId())
+                    .collect(Collectors.toSet());
+
             List<StudentSubjectListResponse> subjectResponses = subjectsPage.getContent().stream()
-                .map(subject -> mapToSubjectListResponse(subject, enrolledSubjectIds.contains(subject.getId())))
-                .collect(Collectors.toList());
-            
+                    .map(subject -> mapToSubjectListResponse(subject, enrolledSubjectIds.contains(subject.getId())))
+                    .collect(Collectors.toList());
+
             Paging paging = Paging.builder()
-                .page(subjectsPage.getNumber())
-                .size(subjectsPage.getSize())
-                .totalElements(subjectsPage.getTotalElements())
-                .totalPages(subjectsPage.getTotalPages())
-                .build();
-                
+                    .page(subjectsPage.getNumber())
+                    .size(subjectsPage.getSize())
+                    .totalElements(subjectsPage.getTotalElements())
+                    .totalPages(subjectsPage.getTotalPages())
+                    .build();
+
             Map<String, Object> response = new HashMap<>();
             response.put("subjects", subjectResponses);
             response.put("paging", paging);
-            
+
             return BaseResponse.ok(response, "All subjects retrieved successfully");
         } catch (ResourceNotFoundException e) {
             log.error("Student not found", e);
@@ -85,10 +85,10 @@ public class StudentSubjectServiceImpl {
         } catch (Exception e) {
             log.error("Failed to retrieve subjects", e);
             return BaseResponse.error(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(), 
-                "Failed to retrieve subjects", 
-                e, 
-                null
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "Failed to retrieve subjects",
+                    e,
+                    null
             );
         }
     }
@@ -102,23 +102,23 @@ public class StudentSubjectServiceImpl {
             // Get current authenticated student
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
-            
+
             Student student = studentRepository.findByUserAccountUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-            
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
             Subject subject = subjectRepository.findByIdWithClasses(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subject not found with ID: " + id));
-            
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject not found with ID: " + id));
+
             // Get all classes the student is enrolled in for this subject
             // Get all classes the student is enrolled in for this subject
             List<ClassStudent> enrolledClasses = classStudentRepository.findByStudentAndSubject(student, subject);
-            
+
             Set<Long> enrolledClassIds = enrolledClasses.stream()
-                .map(cs -> cs.getClassEntity().getId())
-                .collect(Collectors.toSet());
-            
+                    .map(cs -> cs.getClassEntity().getId())
+                    .collect(Collectors.toSet());
+
             StudentSubjectDetailResponse response = mapToSubjectDetailResponse(subject, enrolledClassIds);
-            
+
             return BaseResponse.ok(response, "Subject information retrieved successfully");
         } catch (ResourceNotFoundException e) {
             log.error("Error retrieving subject details", e);
@@ -126,10 +126,10 @@ public class StudentSubjectServiceImpl {
         } catch (Exception e) {
             log.error("Failed to retrieve subject details", e);
             return BaseResponse.error(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(), 
-                "Failed to retrieve subject details", 
-                e, 
-                null
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "Failed to retrieve subject details",
+                    e,
+                    null
             );
         }
     }
@@ -140,17 +140,17 @@ public class StudentSubjectServiceImpl {
     private StudentSubjectListResponse mapToSubjectListResponse(Subject subject, boolean isEnrolled) {
         int totalClasses = subject.getClasses() != null ? subject.getClasses().size() : 0;
         int enrolledClasses = isEnrolled ? 1 : 0; // Simplified, in reality would count actual enrolled classes
-        
+
         return StudentSubjectListResponse.builder()
-            .id(subject.getId())
-            .name(subject.getName())
-            .code(subject.getCode())
-            .description(subject.getDescription())
-            .totalClasses(totalClasses)
-            .enrolledClasses(enrolledClasses)
-            .createdAt(subject.getCreatedAt())
-            .updatedAt(subject.getUpdatedAt())
-            .build();
+                .id(subject.getId())
+                .name(subject.getName())
+                .code(subject.getCode())
+                .description(subject.getDescription())
+                .totalClasses(totalClasses)
+                .enrolledClasses(enrolledClasses)
+                .createdAt(subject.getCreatedAt())
+                .updatedAt(subject.getUpdatedAt())
+                .build();
     }
 
     /**
@@ -158,45 +158,42 @@ public class StudentSubjectServiceImpl {
      */
     private StudentSubjectDetailResponse mapToSubjectDetailResponse(Subject subject, Set<Long> enrolledClassIds) {
         List<StudentSubjectDetailResponse.ClassInfo> classInfos = null;
-        
+
         if (subject.getClasses() != null && !subject.getClasses().isEmpty()) {
             classInfos = subject.getClasses().stream()
-                .map(clazz -> {
-                    boolean enrolled = enrolledClassIds.contains(clazz.getId());
-                    return mapToClassInfo(clazz, enrolled);
-                })
-                .collect(Collectors.toList());
+                    .map(clazz -> {
+                        boolean enrolled = enrolledClassIds.contains(clazz.getId());
+                        return mapToClassInfo(clazz, enrolled);
+                    })
+                    .collect(Collectors.toList());
         }
-        
+
         return StudentSubjectDetailResponse.builder()
-            .id(subject.getId())
-            .name(subject.getName())
-            .code(subject.getCode())
-            .description(subject.getDescription())
-            .totalClasses(subject.getClasses() != null ? subject.getClasses().size() : 0)
-            .classes(classInfos)
-            .createdAt(subject.getCreatedAt())
-            .updatedAt(subject.getUpdatedAt())
-            .build();
+                .id(subject.getId())
+                .name(subject.getName())
+                .code(subject.getCode())
+                .description(subject.getDescription())
+                .totalClasses(subject.getClasses() != null ? subject.getClasses().size() : 0)
+                .classes(classInfos)
+                .createdAt(subject.getCreatedAt())
+                .updatedAt(subject.getUpdatedAt())
+                .build();
     }
-    
+
     /**
      * Helper method to map Class to ClassInfo
      */
     private StudentSubjectDetailResponse.ClassInfo mapToClassInfo(Class clazz, boolean enrolled) {
         return StudentSubjectDetailResponse.ClassInfo.builder()
-            .id(clazz.getId())
-            .name(clazz.getClassName())
-            .teacherId(clazz.getTeacher() != null ? clazz.getTeacher().getId() : null)
-            .teacherName(clazz.getTeacher() != null && clazz.getTeacher().getUser() != null
-                    ? clazz.getTeacher().getUser().getFullName()
-                    : "N/A")
-            .totalStudents(clazz.getStudents() != null ? clazz.getStudents().size() : 0)
-            .enrolled(enrolled)
-            .startDate(LocalDateTime.ofInstant(clazz.getStartDate().toInstant(),
-                    ZoneId.systemDefault()))
-            .endDate(LocalDateTime.ofInstant(clazz.getEndDate().toInstant(),
-                    ZoneId.systemDefault()))
-            .build();
+                .id(clazz.getId())
+                .name(clazz.getClassName())
+                .teacherName(clazz.getTeacher().getUser().getFullName())
+                .teacherEmail(clazz.getTeacher().getUser().getEmail())
+                .teacherAvatarUrl(clazz.getTeacher().getUser().getAvatarUrl())
+                .totalStudents(clazz.getStudents() != null ? clazz.getStudents().size() : 0)
+                .enrolled(enrolled)
+                .startDate(clazz.getStartDate())
+                .endDate(clazz.getEndDate())
+                .build();
     }
 }

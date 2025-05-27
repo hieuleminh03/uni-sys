@@ -1,13 +1,18 @@
 package controller.business.admin;
 
+import dto.request.admin.AdminUpdateGradeRequest;
+import dto.request.admin.CreateExamToClassRequest;
 import dto.response.BaseResponse;
+import dto.response.admin.ExamListResponse;
+import dto.response.admin.ScheduleExamListResponse;
 import lombok.RequiredArgsConstructor;
+import model.enums.ExaminationType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import service.admin.AdminExamServiceImpl;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/exam")
@@ -15,58 +20,38 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminExamController {
 
-    @GetMapping("/all")
-    public BaseResponse<String> getAllExams() {
-        // return a list of general information
-        return BaseResponse.ok(null, "List of all exams retrieved successfully", null);
-    }
+    private final AdminExamServiceImpl adminExamService;
 
     @GetMapping("/byClass/{classId}")
-    public BaseResponse<String> getExamsByClass(@PathVariable int classId) {
+    public BaseResponse<ExamListResponse> getExamsByClass(@PathVariable Long classId,
+                                                          @RequestParam (defaultValue ="MIDTERM") ExaminationType examinationType) {
         // return a list of general information (in a class)
-        return BaseResponse.ok(null, "List of exams for class " + classId + " retrieved successfully", null);
+        return BaseResponse.ok(adminExamService.getExamByClass(classId,examinationType), examinationType+ "exams for class " + classId + " retrieved successfully", null);
     }
 
-    @GetMapping("/detail/{examId}")
-    public BaseResponse<String> getExam(@PathVariable int examId) {
-        // return all detail of an exam
-        return BaseResponse.ok(null, "Exam retrieved successfully");
-    }
 
-    @GetMapping("/grade/{examId}")
-    public BaseResponse<String> getExamGrade(@PathVariable int examId) {
-        // return grade information of an exam: status, grade record,...
-        return BaseResponse.ok(null, "Exam grade retrieved successfully");
-    }
-
-    @PostMapping("/create")
-    public BaseResponse<String> createExam() {
-        // create a new exam
+    @PostMapping("/create/{classId}")
+    public BaseResponse<String> createExam(@PathVariable Long classId,
+                                           @RequestBody CreateExamToClassRequest createExamToClassRequest) {
+        adminExamService.createExam(classId, createExamToClassRequest);
         return BaseResponse.created(null, "Exam created successfully");
     }
-
-    @PostMapping("/update-info")
-    public BaseResponse<String> updateExamInfor() {
-        // update an exam basic information
-        return BaseResponse.accepted(null, "Exam info updated successfully");
+    @DeleteMapping("{examinationId}")
+    public BaseResponse<String> deleteExam(@PathVariable Long examinationId) {
+        adminExamService.deleteExam(examinationId);
+        return BaseResponse.accepted(null, "Exam deleted successfully");
     }
 
-    @PostMapping("/update-status")
-    public BaseResponse<String> updateExamStatus() {
-        // update an exam status
-        return BaseResponse.accepted(null, "Exam status updated successfully");
-    }
-
-    @PostMapping("/grade/{examId}")
-    public BaseResponse<String> gradeExam(@PathVariable int examId) {
-        // grade an exam
-        // should handle all cases: first time & re-grade
+    @PostMapping("/update-grade")
+    public BaseResponse<String> updateGrade(@RequestBody AdminUpdateGradeRequest adminUpdateGradeRequests) {
+        adminExamService.updateExam(adminUpdateGradeRequests);
         return BaseResponse.accepted(null, "Exam graded successfully");
     }
 
-    @PostMapping("/cancel/{examId}")
-    public BaseResponse<String> cancelExam(@PathVariable int examId) {
-        // cancel an exam, should not delete it
-        return BaseResponse.accepted(null, "Exam cancelled successfully");
+    @GetMapping("/schedule-exam")
+    public ResponseEntity<BaseResponse<List<ScheduleExamListResponse>>> scheduleExam(@RequestParam (defaultValue = "0") int page,
+                                                                                     @RequestParam (defaultValue = "10") int size){
+
+        return ResponseEntity.ok(adminExamService.scheduleExam(page , size));
     }
 }

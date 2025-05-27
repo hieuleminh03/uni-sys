@@ -61,6 +61,18 @@ public class GlobalExceptionHandler {
 
     // ====== Validation Exceptions ======
 
+    @ExceptionHandler(ConflictTimeException.class)
+    public ResponseEntity<BaseResponse<Object>> handleConflictTimeException(ConflictTimeException ex, WebRequest request) {
+        log.error("Illegal argument: {}", ex.getMessage());
+        return ResponseEntity.ok(BaseResponse.badRequest("Conflict time", ex, ex.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        log.error("Illegal argument: {}", ex.getMessage());
+        return ResponseEntity.ok(BaseResponse.badRequest("Invalid argument provided", ex, ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponse<Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

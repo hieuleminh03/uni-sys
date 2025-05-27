@@ -153,21 +153,17 @@ public class AdminSubjectServiceImpl {
         if (subject.getClasses() != null && !subject.getClasses().isEmpty()) {
             classInfos = subject.getClasses().stream()
                     .map(clazz -> {
-                        Teacher teacher = clazz.getTeacher();
-                        String teacherName = teacher != null && teacher.getUser() != null
-                                ? teacher.getUser().getFullName()
-                                : "N/A";
+
                         
                         return SubjectDetailResponse.ClassInfo.builder()
                                 .id(clazz.getId())
                                 .name(clazz.getClassName())
-                                .teacherId(teacher != null ? teacher.getId() : null)
-                                .teacherName(teacherName)
+                                .teacherName(clazz.getTeacher().getUser().getFullName())
+                                .teacherEmail(clazz.getTeacher().getUser().getEmail())
+                                .teacherAvatarUrl(clazz.getTeacher().getUser().getAvatarUrl())
                                 .totalStudents(clazz.getStudents() != null ? clazz.getStudents().size() : 0)
-                                .startDate(LocalDateTime.ofInstant(clazz.getStartDate().toInstant(),
-                                        java.time.ZoneId.systemDefault()))
-                                .endDate(LocalDateTime.ofInstant(clazz.getEndDate().toInstant(),
-                                        java.time.ZoneId.systemDefault()))
+                                .startDate(clazz.getStartDate())
+                                .endDate(clazz.getEndDate())
                                 .build();
                     })
                     .collect(Collectors.toList());

@@ -38,10 +38,18 @@ public class StudentAnnouncementService {
         try {
             Calendar calendar = Calendar.getInstance();
 
-            calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+            calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
             Date startDate = calendar.getTime();
 
             calendar.add(Calendar.DAY_OF_WEEK, 6);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
             Date endDate = calendar.getTime();
             List<Announcement> announcements = announcementRepository.findByWeekForStudents(startDate, endDate);
             
@@ -162,7 +170,6 @@ public class StudentAnnouncementService {
             .createdAt(announcement.getCreatedAt())
             .updatedAt(announcement.getUpdatedAt())
             .adminName(announcement.getAdmin().getUser().getFullName())
-            .tags(announcement.getTags())
             .build();
     }
     
@@ -183,7 +190,6 @@ public class StudentAnnouncementService {
             .date(announcement.getDate())
             .createdAt(announcement.getCreatedAt())
             .adminName(announcement.getAdmin().getUser().getFullName())
-            .tags(announcement.getTags())
             .build();
     }
 }

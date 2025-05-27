@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import model.enums.HomeroomStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RequestMapping("/admin/homeroom")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Admin Homeroom Management", description = "Homeroom management API endpoints for administrators")
 public class AdminHomeroomController extends BaseController {
 
@@ -66,27 +68,6 @@ public class AdminHomeroomController extends BaseController {
         return ResponseEntity.ok(adminHomeroomService.updateHomeroom(request));
     }
 
-    /**
-     * Update homeroom teacher
-     */
-    @PutMapping("/teacher")
-    @Operation(summary = "Update homeroom teacher", description = "Assigns a different teacher to an existing homeroom")
-    public ResponseEntity<BaseResponse<String>> updateHomeroomTeacher(
-            @Valid @RequestBody UpdateHomeroomTeacherRequest request) {
-        
-        return ResponseEntity.ok(adminHomeroomService.updateHomeroomTeacher(request));
-    }
-
-    /**
-     * Add a student to homeroom
-     */
-    @PostMapping("/students")
-    @Operation(summary = "Add student to homeroom", description = "Adds a single student to a homeroom with specified status")
-    public ResponseEntity<BaseResponse<String>> addStudentToHomeroom(
-            @Valid @RequestBody AddStudentToHomeroomRequest request) {
-        
-        return ResponseEntity.ok(adminHomeroomService.addStudentToHomeroom(request));
-    }
 
     /**
      * Batch add students to homeroom
@@ -106,20 +87,9 @@ public class AdminHomeroomController extends BaseController {
     @Operation(summary = "Remove student from homeroom", description = "Removes a single student from a homeroom")
     public ResponseEntity<BaseResponse<String>> removeStudentFromHomeroom(
             @Valid @RequestBody RemoveStudentFromHomeroomRequest request) {
-        
         return ResponseEntity.ok(adminHomeroomService.removeStudentFromHomeroom(request));
     }
 
-    /**
-     * Batch remove students from homeroom
-     */
-    @DeleteMapping("/students/batch")
-    @Operation(summary = "Batch remove students", description = "Removes multiple students from a homeroom")
-    public ResponseEntity<BaseResponse<Map<String, Object>>> removeStudentsFromHomeroom(
-            @Valid @RequestBody BatchRemoveStudentsRequest request) {
-        
-        return ResponseEntity.ok(adminHomeroomService.removeStudentsFromHomeroom(request));
-    }
 
     /**
      * Update homeroom student status
@@ -129,8 +99,8 @@ public class AdminHomeroomController extends BaseController {
     public ResponseEntity<BaseResponse<String>> updateHomeroomStudentStatus(
             @PathVariable Long homeroomId,
             @PathVariable Long studentId,
-            @RequestParam HomeroomStatus status) {
-        
+            @RequestBody HomeroomStatusResquest homeroomStatusResquest) {
+        HomeroomStatus status = homeroomStatusResquest.getStatus();
         return ResponseEntity.ok(adminHomeroomService.updateHomeroomStudentStatus(homeroomId, studentId, status));
     }
 }

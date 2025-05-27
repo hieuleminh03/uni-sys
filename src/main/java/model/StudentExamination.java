@@ -26,12 +26,12 @@ public class StudentExamination extends BaseModel {
     private Examination examination;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
-    
-    private BigDecimal grade;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "grade_status", nullable = false)
-    private GradeStatus gradeStatus;
+    @JoinColumn(name = "class_student_id", nullable = false)
+    private ClassStudent classStudent;
+
+    @Column()
+    private Double grade;
+
+    @Column(nullable = false)
+    private boolean isAbsent;
 }

@@ -1,6 +1,7 @@
 package controller.business.teacher;
 
 import controller.BaseController;
+import dto.request.admin.HomeroomStatusResquest;
 import dto.response.BaseResponse;
 import dto.response.teacher.TeacherHomeroomDetailResponse;
 import dto.response.teacher.TeacherHomeroomListResponse;
@@ -9,10 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import service.teacher.TeacherHomeroomServiceImpl;
 
 import java.util.List;
@@ -27,20 +25,17 @@ public class TeacherHomeroomController extends BaseController {
     private final TeacherHomeroomServiceImpl teacherHomeroomService;
 
     /**
-     * Get all homerooms for the current teacher
-     */
-    @GetMapping("/all")
-    @Operation(summary = "Get all homerooms", description = "Retrieves a list of all homerooms for the current teacher")
-    public ResponseEntity<BaseResponse<List<TeacherHomeroomListResponse>>> getAllHomerooms() {
-        return ResponseEntity.ok(teacherHomeroomService.getAllHomerooms());
-    }
-
-    /**
      * Get homeroom details by ID
      */
-    @GetMapping("/{id}")
+    @GetMapping("")
     @Operation(summary = "Get homeroom details", description = "Retrieves detailed information about a specific homeroom")
-    public ResponseEntity<BaseResponse<TeacherHomeroomDetailResponse>> getHomeroomById(@PathVariable Long id) {
-        return ResponseEntity.ok(teacherHomeroomService.getHomeroomById(id));
+    public ResponseEntity<BaseResponse<TeacherHomeroomDetailResponse>> getHomeroom() {
+        return ResponseEntity.ok(teacherHomeroomService.getHomeroom());
+    }
+
+    @PutMapping("{studentId}/status")
+    @Operation(summary = "Update status studnet", description = "Update status student in homeroom")
+    public ResponseEntity<BaseResponse<String>> updateStatusStudent(@PathVariable Long studentId, @RequestBody HomeroomStatusResquest homeroomStatusResquest) {
+        return ResponseEntity.ok(teacherHomeroomService.updateStatusStudent(studentId, homeroomStatusResquest));
     }
 }

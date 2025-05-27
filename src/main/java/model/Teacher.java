@@ -30,6 +30,6 @@ public class Teacher extends BaseModel {
     @OneToMany(mappedBy = "teacher")
     private List<Class> classes;
     
-    @OneToMany(mappedBy = "teacher")
-    private List<Homeroom> homerooms;
+    @OneToOne(mappedBy = "teacher")
+    private Homeroom homeroom;
 }

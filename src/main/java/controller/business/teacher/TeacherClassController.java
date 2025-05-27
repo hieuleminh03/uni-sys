@@ -1,12 +1,15 @@
 package controller.business.teacher;
 
 import dto.response.BaseResponse;
+import dto.response.admin.ClassDetailResponse;
+import dto.response.admin.ClassListResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import service.teacher.TeacherClassServiceImpl;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/teacher/class")
@@ -17,17 +20,21 @@ public class TeacherClassController {
     // screen: class management
     // see classes that teacher is/was teaching only, others should be on the search screen
 
+    private final TeacherClassServiceImpl teacherClassServiceImpl;
+
     @GetMapping("/all")
-    public BaseResponse<String> getAllClasses() {
-        // paging, can filter active classes
-        // url: /student/class/all?page=0&size=10&active=true
-        return BaseResponse.ok(null, "All classes retrieved successfully");
+    @Operation(summary = "Get All class", description = "")
+    public BaseResponse<List<ClassListResponse>> getAllClasses(@RequestParam(defaultValue = "1") int page,
+                                                               @RequestParam(defaultValue = "10") int size){
+
+
+        return teacherClassServiceImpl.getAllClasses(page,size);
     }
 
     @GetMapping("/{id}")
-    public BaseResponse<String> getStudentClass(@PathVariable int id) {
-        // should return all possible data, contains tuition, attendance, exam,...
-        // for classes that teacher is/was teaching
-        return BaseResponse.ok(null, "Student class retrieved successfully");
+    @Operation(summary = "Get Class Details")
+    public BaseResponse<ClassDetailResponse> getClassDetails(@PathVariable Long id) {
+
+        return BaseResponse.ok(teacherClassServiceImpl.getClassDetailsById(id), "Class members retrieved successfully");
     }
 }

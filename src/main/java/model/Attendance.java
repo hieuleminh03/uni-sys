@@ -30,12 +30,9 @@ public class Attendance extends BaseModel {
     @Column(nullable = false)
     private AttendanceType type;
     
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
     private Date date;
-    
-    @Column(name = "length_in_minute")
-    private Integer lengthInMinute;
     
     @OneToMany(mappedBy = "attendance")
     private List<AttendanceHistory> attendanceHistories;

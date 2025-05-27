@@ -17,6 +17,8 @@ public class HomeroomListResponse {
     private String name;
     private Long teacherId;
     private String teacherName;
+    private String teacherAvatarUrl;
+    private String teacherEmail;
     private int studentCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

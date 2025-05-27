@@ -18,6 +18,8 @@ public class HomeroomDetailResponse {
     private String name;
     private Long teacherId;
     private String teacherName;
+    private String teacherEmail;
+    private String teacherAvatarUrl;
     private int totalStudents;
     private int anticipatedStudents;
     private int expelledStudents;

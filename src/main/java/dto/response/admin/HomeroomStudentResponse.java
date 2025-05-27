@@ -18,6 +18,8 @@ public class HomeroomStudentResponse {
     private Long studentId;
     private String studentName;
     private String studentCode;
+    private String studentAvatarUrl;
+    private String studentEmail;
     private HomeroomStatus status;
     private String statusName;
     private LocalDateTime createdAt;

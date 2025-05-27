@@ -20,7 +20,6 @@ public class AnnouncementDetailResponse {
     private String content;
     private AnnouncementTarget target;
     private String targetName;
-    private String tags;
     private Date date;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

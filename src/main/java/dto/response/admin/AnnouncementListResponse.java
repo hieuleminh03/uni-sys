@@ -20,7 +20,6 @@ public class AnnouncementListResponse {
     private String contentPreview;
     private AnnouncementTarget target;
     private String targetName;
-    private String tags;
     private Date date;
     private String adminName;
 }

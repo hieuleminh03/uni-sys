@@ -71,10 +71,5 @@ public class AdminAccountController extends BaseController {
         return new ResponseEntity<>(adminAccountService.createSingleAccount(request), HttpStatus.CREATED);
     }
 
-    @PostMapping("/create/batch")
-    @Operation(summary = "Create multiple accounts", description = "Creates multiple user accounts in batch with detailed success/failure information")
-    public ResponseEntity<BaseResponse<Map<String, Object>>> createBatchAccount(@Valid @RequestBody BatchCreateAccountRequest request) {
-        return new ResponseEntity<>(adminAccountService.createBatchAccount(request), HttpStatus.OK);
-    }
 
 }

@@ -1,5 +1,6 @@
 package service.teacher;
 
+import dto.request.admin.HomeroomStatusResquest;
 import dto.response.BaseResponse;
 import dto.response.teacher.TeacherHomeroomDetailResponse;
 import dto.response.teacher.TeacherHomeroomListResponse;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import model.Homeroom;
 import model.HomeroomStudent;
+import model.Student;
 import model.Teacher;
 import model.enums.HomeroomStatus;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repository.HomeroomRepository;
 import repository.HomeroomStudentRepository;
+import repository.StudentRepository;
 import repository.TeacherRepository;
 
 import java.util.List;
@@ -32,71 +35,14 @@ public class TeacherHomeroomServiceImpl {
     private final HomeroomRepository homeroomRepository;
     private final HomeroomStudentRepository homeroomStudentRepository;
     private final TeacherRepository teacherRepository;
+    private final StudentRepository studentRepository;
+
 
     /**
-     * Get all homerooms for the current teacher
+     * Get the current teacher's homeroom details
      */
     @Transactional(readOnly = true)
-    public BaseResponse<List<TeacherHomeroomListResponse>> getAllHomerooms() {
-        try {
-            // Get current authenticated teacher
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            
-            Teacher teacher = teacherRepository.findByUserAccountUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
-            
-            // Get all homerooms for this teacher
-            List<Homeroom> homerooms = homeroomRepository.findByTeacher(teacher);
-            
-            if (homerooms.isEmpty()) {
-                return BaseResponse.ok(
-                    List.of(),
-                    "No homerooms found for this teacher"
-                );
-            }
-            
-            // Create a map of homeroom IDs to student counts by status
-            Map<Long, Map<HomeroomStatus, Long>> statusCountsMap = homerooms.stream()
-                .collect(Collectors.toMap(
-                    Homeroom::getId,
-                    homeroom -> {
-                        List<HomeroomStudent> students = homeroomStudentRepository.findByHomeroom(homeroom);
-                        return students.stream()
-                            .collect(Collectors.groupingBy(
-                                HomeroomStudent::getStatus,
-                                Collectors.counting()
-                            ));
-                    }
-                ));
-            
-            List<TeacherHomeroomListResponse> responseList = homerooms.stream()
-                .map(homeroom -> mapToListResponse(homeroom, statusCountsMap.get(homeroom.getId())))
-                .collect(Collectors.toList());
-            
-            return BaseResponse.ok(
-                responseList,
-                "Homerooms retrieved successfully"
-            );
-        } catch (ResourceNotFoundException e) {
-            log.error("Teacher not found", e);
-            return BaseResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(), e, null);
-        } catch (Exception e) {
-            log.error("Failed to retrieve homerooms for teacher", e);
-            return BaseResponse.error(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(), 
-                "Failed to retrieve homerooms", 
-                e, 
-                null
-            );
-        }
-    }
-
-    /**
-     * Get homeroom details by ID for the current teacher
-     */
-    @Transactional(readOnly = true)
-    public BaseResponse<TeacherHomeroomDetailResponse> getHomeroomById(Long id) {
+    public BaseResponse<TeacherHomeroomDetailResponse> getHomeroom() {
         try {
             // Get current authenticated teacher
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -106,13 +52,8 @@ public class TeacherHomeroomServiceImpl {
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
             
             // Find the homeroom
-            Homeroom homeroom = homeroomRepository.findByIdWithTeacherAndStudents(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Homeroom not found with id: " + id));
-            
-            // Check if teacher is assigned to this homeroom
-            if (!homeroom.getTeacher().getId().equals(teacher.getId())) {
-                throw new ResourceNotFoundException("You are not assigned to this homeroom");
-            }
+            Homeroom homeroom = homeroomRepository.findByIdWithTeacherAndStudents(teacher.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Homeroom not found with teacherid: " + teacher.getId()));
             
             TeacherHomeroomDetailResponse response = mapToDetailResponse(homeroom);
             
@@ -166,6 +107,10 @@ public class TeacherHomeroomServiceImpl {
         return TeacherHomeroomDetailResponse.builder()
             .id(homeroom.getId())
             .name(homeroom.getName())
+            .teacherName(homeroom.getTeacher().getUser().getFullName())
+            .teacherId(homeroom.getTeacher().getId())
+            .teacherEmail(homeroom.getTeacher().getUser().getEmail())
+            .teacherAvatarUrl(homeroom.getTeacher().getUser().getAvatarUrl())
             .totalStudents(homeroom.getStudents().size())
             .anticipatedStudents(statusCounts.getOrDefault(HomeroomStatus.ANTICIPATED, 0L).intValue())
             .expelledStudents(statusCounts.getOrDefault(HomeroomStatus.EXPELLED, 0L).intValue())
@@ -184,6 +129,8 @@ public class TeacherHomeroomServiceImpl {
             .id(homeroomStudent.getId())
             .studentId(homeroomStudent.getStudent().getId())
             .studentName(homeroomStudent.getStudent().getUser().getFullName())
+            .studentAvatarUrl(homeroomStudent.getStudent().getUser().getAvatarUrl())
+            .studentEmail(homeroomStudent.getStudent().getUser().getEmail())
             .studentCode(homeroomStudent.getStudent().getUser().getAccount().getUsername())
             .status(homeroomStudent.getStatus())
             .statusName(getStatusName(homeroomStudent.getStatus()))
@@ -209,6 +156,45 @@ public class TeacherHomeroomServiceImpl {
                 return "Graduated";
             default:
                 return status.toString();
+        }
+    }
+
+    public BaseResponse<String> updateStatusStudent(Long studentId, HomeroomStatusResquest homeroomStatusResquest) {
+        try {
+            // Get current authenticated teacher
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+
+            Teacher teacher = teacherRepository.findByUserAccountUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+
+            // Find the homeroom
+            Homeroom homeroom = homeroomRepository.findByIdWithTeacherAndStudents(teacher.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Homeroom not found with id: " + teacher.getId()));
+
+            Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + studentId));
+
+            // Find the homeroom student
+            HomeroomStudent homeroomStudent = homeroomStudentRepository.findByHomeroomAndStudent(homeroom, student)
+                .orElseThrow(() -> new ResourceNotFoundException("Homeroom not found with id: " + studentId));
+
+            // Update the status
+            homeroomStudent.setStatus(homeroomStatusResquest.getStatus());
+            homeroomStudentRepository.save(homeroomStudent);
+
+            return BaseResponse.accepted("Student status updated successfully", "Status updated successfully");
+        } catch (ResourceNotFoundException e) {
+            log.error("Error updating student status", e);
+            return BaseResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(), e, null);
+        } catch (Exception e) {
+            log.error("Failed to update student status", e);
+            return BaseResponse.error(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Failed to update student status",
+                e,
+                null
+            );
         }
     }
 }

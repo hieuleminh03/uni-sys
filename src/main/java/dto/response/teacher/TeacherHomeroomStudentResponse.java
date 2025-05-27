@@ -16,6 +16,8 @@ public class TeacherHomeroomStudentResponse {
     private Long id;
     private Long studentId;
     private String studentName;
+    private String studentAvatarUrl;
+    private String studentEmail;
     private String studentCode;
     private HomeroomStatus status;
     private String statusName;

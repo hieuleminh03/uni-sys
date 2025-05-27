@@ -1,13 +1,15 @@
 package controller.business.admin;
 
+import dto.request.admin.UpdateTuitionRequest;
 import dto.response.BaseResponse;
+import dto.response.admin.TuitionListResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import service.admin.AdminTuitionServiceImpl;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/tuition")
@@ -15,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminTuitionController {
 
-    // tuition itself does not have its own table
-    // this is for managing the tuition history
+    private final AdminTuitionServiceImpl adminTuitionService;
 
     @GetMapping("/all")
     public BaseResponse<String> getAllTuition() {
@@ -43,5 +44,25 @@ public class AdminTuitionController {
     public BaseResponse<String> updateTuitionMethod() {
         // update the tuition method (cash/banking/scholarship/financial aid -> between)
         return BaseResponse.accepted(null, "Tuition method updated successfully");
+    }
+
+    @GetMapping("/all/{studentId}")
+    public ResponseEntity<BaseResponse<List<TuitionListResponse>>> getTuitionByStudent(@PathVariable Long studentId,
+                                                                       @RequestParam(defaultValue = "0") int page,
+                                                                       @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(adminTuitionService.getTuitionListByStudent(studentId,page,size));
+    }
+
+    @GetMapping("/not-paid/{studentId}")
+    public ResponseEntity<BaseResponse<List<TuitionListResponse>>> getNotPaidTuitionByStudent(@PathVariable Long studentId,
+                                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                                 @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminTuitionService.getNotPaidTuitionListByStudent(studentId,page,size));
+    }
+
+    @PatchMapping("/update-status/{tuitionId}")
+    public ResponseEntity<BaseResponse<String>> updateTuitionStatus(@PathVariable Long tuitionId, @RequestBody UpdateTuitionRequest updateTuitionRequest) {
+        return ResponseEntity.ok(adminTuitionService.updateTuitionStatus(tuitionId,updateTuitionRequest.getStatus()));
     }
 }

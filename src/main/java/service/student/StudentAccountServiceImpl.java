@@ -39,10 +39,14 @@ public class StudentAccountServiceImpl {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Account account = accountRepository.findByUsername(auth.getName())
                     .orElseThrow(() -> new RuntimeException("Account not found"));
-            
+            User user = userRepository.findByAccount(account)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             AccountInformationResponse response = AccountInformationResponse.builder()
                     .username(account.getUsername())
                     .status(account.getStatus())
+                    .email(user.getEmail())
+                    .fullName(user.getFullName())
+                    .avatarUrl(user.getAvatarUrl())
                     .build();
             
             return BaseResponse.ok(response, "Account information retrieved successfully");

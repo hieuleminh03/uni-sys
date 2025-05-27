@@ -1,13 +1,17 @@
 package repository;
 
 import model.Account;
+import model.ClassStudent;
+import model.StudentExamination;
 import model.User;
+import model.enums.ExaminationType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface StudentExaminationRepository extends JpaRepository<Account, Long> {
-    Optional<Account> findByUsername(String username);
+@Repository
+public interface StudentExaminationRepository extends JpaRepository<StudentExamination, Long> {
 
-    String user(User user);
+    StudentExamination findByClassStudentAndExamination_Type(ClassStudent classStudent, ExaminationType type);
 }

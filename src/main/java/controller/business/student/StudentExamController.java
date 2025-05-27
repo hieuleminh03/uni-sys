@@ -1,18 +1,21 @@
 package controller.business.student;
 
 import dto.response.BaseResponse;
+import dto.response.admin.ScheduleExamListResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import service.student.StudentExamServiceImpl;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/student/exam")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('STUDENT')")
 public class StudentExamController {
+    private final StudentExamServiceImpl studentExamServiceImpl;
 
     @GetMapping("/all")
     public BaseResponse<String> getAllExams() {
@@ -35,5 +38,10 @@ public class StudentExamController {
         // include grade information if available
         return BaseResponse.ok(null, "Exam retrieved successfully");
     }
+    @GetMapping("/schedule-exam")
+    public ResponseEntity<BaseResponse<List<ScheduleExamListResponse>>> scheduleExam(@RequestParam(defaultValue = "0") int page,
+                                                                                     @RequestParam (defaultValue = "10") int size){
 
+        return ResponseEntity.ok(studentExamServiceImpl.scheduleExam(page , size));
+    }
 }

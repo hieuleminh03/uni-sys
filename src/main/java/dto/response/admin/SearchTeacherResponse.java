@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SearchTeacherResponse {
     private String fullName;
-    private int teacherId;
-    private String email;
     private String avatarUrl;
+    private String email;
+    private Long teacherId;
 
-    public SearchTeacherResponse(String fullName, String avatarUrl, String email, int teacherId) {
+    public SearchTeacherResponse(String fullName, String avatarUrl, String email, Long teacherId) {
         this.fullName = fullName;
         this.avatarUrl = avatarUrl;
         this.email = email;

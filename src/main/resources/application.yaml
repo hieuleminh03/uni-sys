@@ -23,8 +23,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
-    open-in-view: false
+    show-sql: true
+    open-in-view: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect

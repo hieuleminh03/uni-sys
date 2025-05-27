@@ -2,6 +2,5 @@ package model.enums;
 
 public enum ExaminationType {
     MIDTERM,
-    FINAL,
-    REGULAR
+    FINAL
 }

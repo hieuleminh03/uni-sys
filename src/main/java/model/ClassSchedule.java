@@ -19,7 +19,7 @@ public class ClassSchedule extends BaseModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id", nullable = false)
     private Class classEntity;
     

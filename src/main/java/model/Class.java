@@ -53,7 +53,7 @@ public class Class extends BaseModel {
     private Date tuitionDueDate;
 
     @Column(name = "final_term_weight")
-    private Long finalTermWeight;
+    private Float finalTermWeight;
     
     @Column(name = "absence_warning_threshold")
     private Integer absenceWarningThreshold;
@@ -61,8 +61,8 @@ public class Class extends BaseModel {
     @Column(name = "absence_limit")
     private Integer absenceLimit;
     
-    @OneToMany(mappedBy = "classEntity")
-    private List<ClassSchedule> schedules;
+    @OneToOne(mappedBy = "classEntity")
+    private ClassSchedule schedules;
     
     @OneToMany(mappedBy = "classEntity")
     private List<ClassStudent> students;
