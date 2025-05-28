@@ -5,6 +5,8 @@ import lombok.Getter;
 import model.enums.AttendanceStatus;
 import model.enums.AttendanceType;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class AttendanceListResponse {
     @Getter
     public static class AttendanceHistoriesResponse {
         private Long attendanceId;
-        private Date date;
+        private LocalDateTime date;
         private AttendanceType attendanceType;
         private AttendanceStatus attendanceStatus;
     }

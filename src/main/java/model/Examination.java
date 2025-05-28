@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import model.enums.ExaminationStatus;
 import model.enums.ExaminationType;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class Examination extends BaseModel {
     
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
-    private Date date;
+    private LocalDate date;
     
     @Column(columnDefinition = "json")
     private String notes;

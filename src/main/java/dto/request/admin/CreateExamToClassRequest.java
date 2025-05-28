@@ -3,13 +3,14 @@ package dto.request.admin;
 import lombok.Getter;
 import model.enums.ExaminationType;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
 @Getter
 public class CreateExamToClassRequest {
     private ExaminationType examinationType;
-    private Date date;
+    private LocalDate date;
     private List<ExamStudentRequest> examStudentRequests;
 
     @Getter

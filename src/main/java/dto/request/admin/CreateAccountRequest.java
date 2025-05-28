@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import model.enums.Gender;
 import model.enums.Role;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -32,7 +33,7 @@ public class CreateAccountRequest {
     @NotBlank(message = "Full name cannot be blank")
     private String fullName;
     
-    private Date dob;
+    private LocalDate dob;
     
     private Gender gender;
     

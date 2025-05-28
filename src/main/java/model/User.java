@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import model.enums.Gender;
 import model.enums.Role;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -42,7 +43,7 @@ public class User extends BaseModel implements UserDetails {
     private String fullName;
     
     @Temporal(TemporalType.DATE)
-    private Date dob;
+    private LocalDate dob;
     
     @Enumerated(EnumType.STRING)
     private Gender gender;

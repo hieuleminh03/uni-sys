@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import model.enums.ExaminationType;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,6 @@ public class ScheduleExamListResponse {
     public static class ClassScheduleResponse {
         private Long examinationId;
         private ExaminationType examinationType;
-        private Date date;
+        private LocalDate date;
     }
 }

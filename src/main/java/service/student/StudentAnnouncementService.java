@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import repository.AnnouncementRepository;
 import util.Paging;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +46,9 @@ public class StudentAnnouncementService {
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
             Date startDate = calendar.getTime();
+            LocalDate startLocalDate = startDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
 
             calendar.add(Calendar.DAY_OF_WEEK, 6);
             calendar.set(Calendar.HOUR_OF_DAY, 23);
@@ -51,7 +56,10 @@ public class StudentAnnouncementService {
             calendar.set(Calendar.SECOND, 59);
             calendar.set(Calendar.MILLISECOND, 999);
             Date endDate = calendar.getTime();
-            List<Announcement> announcements = announcementRepository.findByWeekForStudents(startDate, endDate);
+            LocalDate endLocalDate = endDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+            List<Announcement> announcements = announcementRepository.findByWeekForStudents(startLocalDate, endLocalDate);
             
             if (announcements.isEmpty()) {
                 return BaseResponse.ok(List.of(), "No announcements found for this week");

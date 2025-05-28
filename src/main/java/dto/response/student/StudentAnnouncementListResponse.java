@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.enums.AnnouncementTarget;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -17,7 +18,7 @@ public class StudentAnnouncementListResponse {
     private Long id;
     private String title;
     private String contentPreview;
-    private Date date;
+    private LocalDate date;
     private LocalDateTime createdAt;
     private String adminName;
 }

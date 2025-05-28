@@ -6,6 +6,8 @@ import lombok.Getter;
 import model.enums.AttendanceStatus;
 import model.enums.AttendanceType;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class TeacherAttendanceCreateRequest {
     private AttendanceType attendanceType;
 
     @NotBlank(message = "Date cannot be blank")
-    private Date date;
+    private LocalDateTime date;
 
     @NotBlank(message = "Attendance results cannot be blank")
     private List<AttendanceResult> attendanceResults;

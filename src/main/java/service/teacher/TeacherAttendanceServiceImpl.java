@@ -53,8 +53,8 @@ public class TeacherAttendanceServiceImpl {
         Class classEntity = classRepository.findById(classId)
                 .orElseThrow(() -> new IllegalArgumentException("Class not found with id: " + classId));
 
-        if(classEntity.getStartDate().after(teacherAttendanceCreateRequest.getDate()) ||
-                classEntity.getEndDate().before(teacherAttendanceCreateRequest.getDate())) {
+        if(classEntity.getStartDate().isAfter(teacherAttendanceCreateRequest.getDate().toLocalDate()) ||
+                classEntity.getEndDate().isBefore(teacherAttendanceCreateRequest.getDate().toLocalDate())) {
             throw new ConflictTimeException("Attendance date is out of class date range");
         }
         Attendance attendance = Attendance.builder()

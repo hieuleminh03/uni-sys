@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import repository.AnnouncementRepository;
 import util.Paging;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,7 +47,11 @@ public class TeacherAnnouncementService {
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
-            Date startDate = calendar.getTime();
+            Date dates = calendar.getTime();
+            LocalDate startDate = dates.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
 
 // End of week (Sunday 23:59:59.999)
             calendar.add(Calendar.DAY_OF_WEEK, 6);
@@ -53,7 +59,10 @@ public class TeacherAnnouncementService {
             calendar.set(Calendar.MINUTE, 59);
             calendar.set(Calendar.SECOND, 59);
             calendar.set(Calendar.MILLISECOND, 999);
-            Date endDate = calendar.getTime();
+            Date datee = calendar.getTime();
+            LocalDate endDate = datee.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
 
 
 // Truy vấn

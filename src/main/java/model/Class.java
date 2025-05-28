@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -35,11 +36,11 @@ public class Class extends BaseModel {
     
     @Temporal(TemporalType.DATE)
     @Column(name = "start_date")
-    private Date startDate;
+    private LocalDate startDate;
     
     @Temporal(TemporalType.DATE)
     @Column(name = "end_date")
-    private Date endDate;
+    private LocalDate endDate;
     
     private String description;
     
@@ -50,7 +51,7 @@ public class Class extends BaseModel {
     
     @Temporal(TemporalType.DATE)
     @Column(name = "tuition_due_date")
-    private Date tuitionDueDate;
+    private LocalDate tuitionDueDate;
 
     @Column(name = "final_term_weight")
     private Float finalTermWeight;

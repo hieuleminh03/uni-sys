@@ -5,6 +5,7 @@ import lombok.Getter;
 import model.enums.DayOfWeek;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -16,15 +17,15 @@ public class CreateClassRequest {
     @NotBlank(message = "Class name is required")
     private String className;
     @NotBlank(message = "StartDate is required")
-    private Date startDate;
+    private LocalDate startDate;
     @NotBlank(message = "EndDate date is required")
-    private Date endDate;
+    private LocalDate endDate;
     private String description;
     @NotBlank(message = "Tuition is required")
     private BigDecimal tuition;
 
     @NotBlank(message = "Tuition due date is required")
-    private Date tuitionDueDate;
+    private LocalDate tuitionDueDate;
 
     @NotBlank(message = "Final term weight is required")
     private Float finalTermWeight;

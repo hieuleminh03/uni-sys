@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -40,8 +41,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     @Query("SELECT a FROM Announcement a WHERE a.target = 'STUDENT' " +
            "AND a.date BETWEEN :startDate AND :endDate ORDER BY a.date DESC")
     List<Announcement> findByWeekForStudents(
-        @Param("startDate") Date startDate,
-        @Param("endDate") Date endDate);
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate);
     
     // For teachers
     @Query("SELECT a FROM Announcement a WHERE a.target = 'TEACHER' ORDER BY a.date DESC")
@@ -53,8 +54,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     @Query("SELECT a FROM Announcement a WHERE a.target = 'TEACHER' " +
            "AND a.date BETWEEN :startDate AND :endDate ORDER BY a.date DESC")
     List<Announcement> findByWeekForTeachers(
-        @Param("startDate") Date startDate,
-        @Param("endDate") Date endDate);
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate);
     
     @Query("SELECT a FROM Announcement a JOIN FETCH a.admin admin JOIN FETCH admin.user WHERE a.id = :id")
     Optional<Announcement> findByIdWithAdmin(@Param("id") Long id);

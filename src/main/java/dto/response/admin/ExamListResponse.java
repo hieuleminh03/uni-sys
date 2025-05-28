@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import model.enums.ExaminationType;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @Builder
 public class ExamListResponse {
     private Long examinationId;
-    private Date date;
+    private LocalDate date;
     private ExaminationType examinationType;
     private List<ExamStudentResponse> examStudentResponses;
     private List<AttendanceResponse> attendanceResponses;

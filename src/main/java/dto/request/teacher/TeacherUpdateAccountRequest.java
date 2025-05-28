@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import model.enums.DiplomaLevel;
 import model.enums.Gender;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -21,7 +22,7 @@ public class TeacherUpdateAccountRequest {
     @NotBlank(message = "Full name cannot be blank")
     private String fullName;
     
-    private Date dob;
+    private LocalDate dob;
     
     private Gender gender;
     

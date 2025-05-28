@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.enums.AnnouncementTarget;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -30,5 +31,5 @@ public class UpdateAnnouncementRequest {
 
     
     @NotNull(message = "Date is required")
-    private Date date;
+    private LocalDate date;
 }

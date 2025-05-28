@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.enums.AnnouncementTarget;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -27,7 +28,7 @@ public class Announcement extends BaseModel {
     
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
-    private Date date;
+    private LocalDate date;
     
     @Column(nullable = false)
     private String title;

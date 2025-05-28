@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import model.enums.DayOfWeek;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -11,8 +12,8 @@ import java.util.Date;
 public class TeacherScheduleResponse {
     private Long classId;
     private String className;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String subjectName;
     private String subjectCode;
     private String room;

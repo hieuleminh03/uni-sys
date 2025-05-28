@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +36,7 @@ public class TeacherSubjectDetailResponse {
         private String teacherAvatarUrl;
         private String teacherEmail;
         private int totalStudents;
-        private Date startDate;
-        private Date endDate;
+        private LocalDate startDate;
+        private LocalDate endDate;
     }
 }

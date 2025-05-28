@@ -77,8 +77,8 @@ public class AdminExamServiceImpl {
     public void createExam(Long classId, CreateExamToClassRequest createExamToClassRequest) {
         Class classEntity = classRepository.findById(classId)
                 .orElseThrow(() -> new ResourceNotFoundException("Class not found with id: " + classId));
-        if (classEntity.getStartDate().after(createExamToClassRequest.getDate()) ||
-                classEntity.getEndDate().before(createExamToClassRequest.getDate())) {
+        if (classEntity.getStartDate().isAfter(createExamToClassRequest.getDate()) ||
+                classEntity.getEndDate().isBefore(createExamToClassRequest.getDate())) {
             throw new ConflictTimeException("Bài thi không được tạo ngoài khoảng thời gian của lớp học");
         }
         if(createExamToClassRequest.getExaminationType()==ExaminationType.FINAL){
@@ -89,7 +89,7 @@ public class AdminExamServiceImpl {
                 if (midtermExam == null) {
                     throw new ConflictTimeException("Bài thi giữa kỳ chưa được tạo");
                 }
-                if(midtermExam.getDate().after(createExamToClassRequest.getDate())) {
+                if(midtermExam.getDate().isAfter(createExamToClassRequest.getDate())) {
                     throw new ConflictTimeException("Bài thi cuối kỳ không được tạo trước bài thi giữa kỳ");
                 }
             }

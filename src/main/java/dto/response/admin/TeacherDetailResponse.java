@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import model.enums.DiplomaLevel;
 import model.enums.Gender;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -21,7 +22,7 @@ public class TeacherDetailResponse {
     private String username;
     private String fullName;
     private Gender gender;
-    private Date dob;
+    private LocalDate dob;
     private String email;
     private String phoneNumber;
     private String avatarUrl;

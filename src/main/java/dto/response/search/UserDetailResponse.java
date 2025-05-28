@@ -7,6 +7,7 @@ import model.enums.AccountStatus;
 import model.enums.Gender;
 import model.enums.Role;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -18,7 +19,7 @@ public class UserDetailResponse {
     private AccountStatus accountStatus;
     private Role role;
     private String fullName;
-    private Date dob;
+    private LocalDate dob;
     private Gender gender;
     private String email;
     private String avatarUrl;

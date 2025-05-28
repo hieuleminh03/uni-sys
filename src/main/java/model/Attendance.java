@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.enums.AttendanceType;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class Attendance extends BaseModel {
     
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date date;
+    private LocalDateTime date;
     
     @OneToMany(mappedBy = "attendance")
     private List<AttendanceHistory> attendanceHistories;

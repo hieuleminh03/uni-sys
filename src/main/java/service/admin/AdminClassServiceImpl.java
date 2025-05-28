@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repository.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -45,13 +46,13 @@ public class AdminClassServiceImpl {
         Subject subject = subjectRepository.findById(createClassRequest.getSubjectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
-        if (createClassRequest.getStartDate().after(createClassRequest.getEndDate())) {
+        if (createClassRequest.getStartDate().isAfter(createClassRequest.getEndDate())) {
             throw new IllegalArgumentException("Start date must be before end date");
         }
-        if (createClassRequest.getTuitionDueDate().after(createClassRequest.getEndDate())) {
+        if (createClassRequest.getTuitionDueDate().isAfter(createClassRequest.getEndDate())) {
             throw new IllegalArgumentException("Tuition due date must be before end date");
         }
-        if (createClassRequest.getStartDate().after(createClassRequest.getTuitionDueDate())) {
+        if (createClassRequest.getStartDate().isAfter(createClassRequest.getTuitionDueDate())) {
             throw new IllegalArgumentException("Tuition due date must be after start date");
         }
         if (createClassRequest.getAbsenceWarningThreshold() > createClassRequest.getAbsenceLimit()) {
@@ -67,8 +68,8 @@ public class AdminClassServiceImpl {
 
         List<Class> classList = classRepository.findByTeacher(teacher);
         classList = classList.stream()
-                .filter(aClass -> !(aClass.getStartDate().after(createClassRequest.getEndDate())
-                        || aClass.getEndDate().before(createClassRequest.getStartDate())))
+                .filter(aClass -> !(aClass.getStartDate().isAfter(createClassRequest.getEndDate())
+                        || aClass.getEndDate().isBefore(createClassRequest.getStartDate())))
                 .filter(aClass -> {
                     ClassSchedule classSchedule = aClass.getSchedules();
                     return classSchedule.getDayOfWeek() == createClassRequest.getDayOfWeek()
@@ -83,8 +84,8 @@ public class AdminClassServiceImpl {
 
         List<Class> classes = classRepository.findBySchedule(createClassRequest.getRoom());
         classes = classes.stream()
-                .filter(aClass -> !(aClass.getStartDate().after(createClassRequest.getEndDate())
-                        || aClass.getEndDate().before(createClassRequest.getStartDate())))
+                .filter(aClass -> !(aClass.getStartDate().isAfter(createClassRequest.getEndDate())
+                        || aClass.getEndDate().isBefore(createClassRequest.getStartDate())))
                 .filter(aClass -> {
                     ClassSchedule classSchedule = aClass.getSchedules();
                     return classSchedule.getDayOfWeek() == createClassRequest.getDayOfWeek()
@@ -230,13 +231,13 @@ public class AdminClassServiceImpl {
         Subject subject = subjectRepository.findById(updateClassRequest.getSubjectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
-        if (updateClassRequest.getStartDate().after(updateClassRequest.getEndDate())) {
+        if (updateClassRequest.getStartDate().isAfter(updateClassRequest.getEndDate())) {
             throw new IllegalArgumentException("Start date must be before end date");
         }
-        if (updateClassRequest.getTuitionDueDate().after(updateClassRequest.getEndDate())) {
+        if (updateClassRequest.getTuitionDueDate().isAfter(updateClassRequest.getEndDate())) {
             throw new IllegalArgumentException("Tuition due date must be before end date");
         }
-        if (updateClassRequest.getStartDate().after(updateClassRequest.getTuitionDueDate())) {
+        if (updateClassRequest.getStartDate().isAfter(updateClassRequest.getTuitionDueDate())) {
             throw new IllegalArgumentException("Tuition due date must be after start date");
         }
         if (updateClassRequest.getAbsenceWarningThreshold() > updateClassRequest.getAbsenceLimit()) {
@@ -252,8 +253,8 @@ public class AdminClassServiceImpl {
 
         List<Class> classList = classRepository.findByTeacher(teacher);
         classList = classList.stream()
-                .filter(aClass -> !(aClass.getStartDate().after(updateClassRequest.getEndDate())
-                        || aClass.getEndDate().before(updateClassRequest.getStartDate())
+                .filter(aClass -> !(aClass.getStartDate().isAfter(updateClassRequest.getEndDate())
+                        || aClass.getEndDate().isBefore(updateClassRequest.getStartDate())
                         || aClass.getId().equals(id)))
                 .filter(aClass -> {
                     ClassSchedule classSchedule = aClass.getSchedules();
@@ -269,8 +270,8 @@ public class AdminClassServiceImpl {
 
         List<Class> classes = classRepository.findBySchedule(updateClassRequest.getRoom());
         classes = classes.stream()
-                .filter(aClass -> !(aClass.getStartDate().after(updateClassRequest.getEndDate())
-                        || aClass.getEndDate().before(updateClassRequest.getStartDate())
+                .filter(aClass -> !(aClass.getStartDate().isAfter(updateClassRequest.getEndDate())
+                        || aClass.getEndDate().isBefore(updateClassRequest.getStartDate())
                         || aClass.getId().equals(id)))
                 .filter(aClass -> {
                     ClassSchedule classSchedule = aClass.getSchedules();
@@ -324,8 +325,8 @@ public class AdminClassServiceImpl {
         students.forEach(student -> {
             List<Class> classes = classRepository.findByStudent(student);
             classes = classes.stream()
-                    .filter(aClass -> !(aClass.getStartDate().after(classEntity.getEndDate())
-                            || aClass.getEndDate().before(classEntity.getStartDate())))
+                    .filter(aClass -> !(aClass.getStartDate().isAfter(classEntity.getEndDate())
+                            || aClass.getEndDate().isBefore(classEntity.getStartDate())))
                     .filter(aClass -> {
                         ClassSchedule classSchedule = aClass.getSchedules();
                         return classSchedule.getDayOfWeek() == classEntity.getSchedules()
@@ -358,7 +359,7 @@ public class AdminClassServiceImpl {
         List<TuitionRecord> tuitionRecords = classStudents.stream()
                 .map(classStudent -> TuitionRecord.builder()
                         .classStudent(classStudent)
-                        .status(classEntity.getStartDate().after(new Date()) || classEntity.getEndDate().before(new Date()) ? TuitionStatus.UNPAID : TuitionStatus.PROCESSING)
+                        .status(classEntity.getStartDate().isAfter(LocalDate.now()) || classEntity.getEndDate().isBefore(LocalDate.now()) ? TuitionStatus.UNPAID : TuitionStatus.PROCESSING)
                         .method(PaymentMethod.CASH)
                         .build())
                 .toList();

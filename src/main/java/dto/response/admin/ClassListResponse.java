@@ -5,6 +5,7 @@ import lombok.Getter;
 import model.enums.DayOfWeek;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 @Getter
 @Builder
@@ -17,11 +18,11 @@ public class ClassListResponse {
     private String teacherAvatarUrl;
     private Long subjectId;
     private String subjectName;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String description;
     private BigDecimal tuition;
-    private Date tuitionDueDate;
+    private LocalDate tuitionDueDate;
     private Float finalTermWeight;
     private DayOfWeek dayOfWeek;
     private Integer periodStart;
